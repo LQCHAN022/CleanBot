@@ -1,0 +1,11 @@
+Set subdivision, default 16 subdivision,
+subdivision
+2 corresponds to a cycle of 512 pulses
+subdivision
+4 corresponds to a cycle of 1024 pulses
+subdivision
+8 corresponds to a cycle of 2048 pulses
+subdivision
+16 corresp onds to a cycle of 4096 pulses
+subdivision
+32 corresponds to a cycle of 8192 pulses

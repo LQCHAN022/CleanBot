@@ -1,0 +1,18 @@
+Power Supply:
+	12V
+	2A
+
+1. Open Arduino IDE
+2. Go to tools > board > ensure Arduino Mega or Mega 2560
+3. Go to tools > port > choose one
+4. Tools > Serial Monitor to start operation
+5. Commands to take note:
+
+clean <speed> //where speed is an integer, start from 1000 till max 8192
+eg. speed 3000
+if direction is other way:
+	unplug from computer, switch off everything
+	on the power first
+	then plug in usb
+To stop clean 0
+

@@ -1,0 +1,6 @@
+11500 steps = 40 cm
+287 steps/cm
+
+41400 steps = 180 degrees
+230 steps/degrees
+20700 steps = 90 degrees
