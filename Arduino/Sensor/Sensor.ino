@@ -1,9 +1,5 @@
 // ---------------------------------------------------------------- //
 // Arduino Ultrasoninc Sensor HC-SR04
-// Re-writed by Arbi Abdul Jabbaar
-// Using Arduino IDE 1.8.7
-// Using HC-SR04 Module
-// Tested on 17 September 2019
 // ---------------------------------------------------------------- //
 
 //Echo Sensor
@@ -15,7 +11,16 @@
 #define echoPin3 6 
 #define trigPin3 7 
 #define echoPin4 8 
-#define trigPin4 9  
+#define trigPin4 9
+
+#define echoPin5 54 //pins for sensors 5-8
+#define trigPin5 55
+#define echoPin6 56
+#define trigPin6 57 
+#define echoPin7 58 
+#define trigPin7 59 
+#define echoPin8 60 
+#define trigPin8 61   
 
 
 long duration1; // variable for the duration of sound wave travel
@@ -27,6 +32,15 @@ int distance3;
 long duration4; 
 int distance4; 
 
+long duration5; 
+int distance5;
+long duration6; 
+int distance6;
+long duration7; 
+int distance7;
+long duration8; 
+int distance8;
+
 //------------------------------------------------------------------//
 
 //Accelerometer
@@ -34,7 +48,6 @@ int distance4;
 #include "Wire.h"
 #include <MPU6050_light.h>
 MPU6050 mpu(Wire);
-#define AccThresh 0.4
 long timer = 0;
 long AngleX, AngleY, AngleZ;
 
@@ -42,12 +55,12 @@ long AngleX, AngleY, AngleZ;
 
 //Button
 
-#define buttonPin1 54
+#define buttonPin1 62
 int buttonState1 = 0;
 int lastButtonState1 = 0;
-//int buttonTog1 = 0;
 
-//int buttonPin2 = 55;
+//Not implemented yet
+//int buttonPin2 = 63;
 //int buttonState2 = 0;
 //int lastButtonState2 = 0;
 
@@ -55,9 +68,14 @@ int lastButtonState1 = 0;
 
 //Limit Switches
 
-#define limitPin1 69
+#define limitPin1 68
 int limitState1 = 0;
 int lastLimitState1 = 0;
+
+//Not implemented yet
+#define limitPin2 69
+int limitState2 = 0;
+int lastLimitState2 = 0;
 
 //------------------------------------------------------------------//
 
