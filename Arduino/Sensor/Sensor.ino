@@ -53,16 +53,16 @@ long AngleX, AngleY, AngleZ;
 
 //------------------------------------------------------------------//
 
-//Button
+//Buttons
 
 #define buttonPin1 62
 int buttonState1 = 0;
-int lastButtonState1 = 0;
+int lastButtonState1 = 1;
 
-//Not implemented yet
-//int buttonPin2 = 63;
-//int buttonState2 = 0;
-//int lastButtonState2 = 0;
+
+#define buttonPin2 63
+int buttonState2 = 0;
+int lastButtonState2 = 1;
 
 //------------------------------------------------------------------//
 
@@ -79,8 +79,23 @@ int lastLimitState2 = 0;
 
 //------------------------------------------------------------------//
 
+//Optical Sensor
+
+/*  CS = 22
+ *  MISO = 50
+ *  MOSI = 51
+ *  SCK = 52 
+ */
+#include "Bitcraze_PMW3901.h"
+Bitcraze_PMW3901 flow(22); //defining pin 22 for CS
+
+int16_t deltaX,deltaY; //values for the X and Y deltas
+
+//------------------------------------------------------------------//
 
 void setup() {
+  
+  // ECHO setup 
   pinMode(trigPin1, OUTPUT); 
   pinMode(echoPin1, INPUT); 
   
@@ -94,7 +109,8 @@ void setup() {
   pinMode(echoPin4, INPUT); 
   
   //------------------------------------------------------------------//
-  
+
+  //MPU setup
   Wire.begin();
   byte status = mpu.begin();
   while(status!=0){ } // stop everything if could not connect to MPU6050
@@ -102,15 +118,26 @@ void setup() {
 
   //------------------------------------------------------------------//
 
+  //Button setup
   pinMode(buttonPin1, INPUT_PULLUP);
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(buttonPin2, INPUT_PULLUP);
   
   //------------------------------------------------------------------//
 
+  //Limit switches setup
   pinMode(limitPin1, INPUT);
   
   //------------------------------------------------------------------//
-  
+
+  //Optical Sensor setup
+
+  if (!flow.begin()) { //stop everything if cannot connect to PMW 3901
+    while(1) { }
+  }
+
+  //------------------------------------------------------------------//
+
+  //Serial setup
   Serial.begin(9600); // // Serial Communication is starting with 9600 of baudrate speed
   Serial.println("SENSOR");
   
@@ -120,6 +147,7 @@ void loop() {
   limitdetect();
   accelreading();
   buttondetect();
+  opticalreading();
 //  delay(100);
 //  Serial.print(lastButtonState); Serial.print(" ");
 //  Serial.println(buttonState);
@@ -175,7 +203,7 @@ void echoreading(){
   duration4 = pulseIn(echoPin4, HIGH);
   distance4 = duration4 * 0.034 / 2; 
   Serial.print("ECHO ");Serial.print(distance1);Serial.print(" ");Serial.print(distance2);Serial.print(" ");Serial.print(distance3);Serial.print(" ");Serial.println(distance4);
-  delay(10);
+//  delay(10);
 
 
 }
@@ -195,19 +223,26 @@ void accelreading(){
 }
 
 void buttondetect(){
-  
+
+//Button 1
   buttonState1 = digitalRead(buttonPin1);
-//  Serial.println(buttonState1);
   if(buttonState1 != lastButtonState1){
     if(lastButtonState1 == LOW){ //if this is a transition from LOW to HIGH aka pressing button
-//      buttonTog1 = buttonTog1?0:1;
-//      digitalWrite(LED_BUILTIN, buttonTog1);
-//      Serial.print("ButtonTog1: "); Serial.println(buttonTog1);
       Serial.println("B1");
     }
   }
   lastButtonState1 = buttonState1;
-  delay(50);
+//  delay(50);
+
+//Button 2
+  buttonState2 = digitalRead(buttonPin2);
+  if(buttonState2 != lastButtonState2){
+    if(lastButtonState2 == LOW){ //if this is a transition from LOW to HIGH aka pressing button
+      Serial.println("B2");
+    }
+  }
+  lastButtonState2 = buttonState2;
+//  delay(50);
 }
 
 void limitdetect(){
@@ -221,5 +256,18 @@ void limitdetect(){
     }
   }
   lastLimitState1 = limitState1;
-  delay(50);
+//  delay(50);
+}
+
+void opticalreading(){
+
+  // Get motion count since last call
+  flow.readMotionCount(&deltaX, &deltaY);
+
+  Serial.print("OPTICAL ");
+  Serial.print(deltaX);
+  Serial.print(" ");
+  Serial.println(deltaY);
+
+//  delay(100);
 }
