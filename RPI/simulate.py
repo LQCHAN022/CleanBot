@@ -1,3 +1,13 @@
+"""
+READ THIS
+
+Since the checksurr() function is updated for direction, distance, and the detection of cleaned spots, this file will not work anymore
+If you want to continue to work using this do rollback the version of mapping.py
+
+"""
+
+
+
 from mapping import Map
 import numpy as np
 import time
