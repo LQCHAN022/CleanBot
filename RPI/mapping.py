@@ -232,6 +232,8 @@ class Map:
         This function is to provide a list of directions and distancesrelative to the robot where obstacles are detected, based on self.safelim
         take note that the "length"/size[0] of the robot is shorter than it's width due to its shape
         the lowest dist is 1 when difference between coordinates of obstacle and edge of robot is 1
+        
+        
         """
 
         obsdir = [] #obstacle directions
@@ -246,6 +248,13 @@ class Map:
                             obsdir.append(["FRONT", self.pos[0] - self.length//2 - row]) #self.pos[1] - self.length//2 - col is the distance from the north edge to the assessed block
                         elif self.dir == "S":
                             obsdir.append(["BACK", self.pos[0] - self.length//2 - row])
+                    
+                    #This is mainly for wall hug, checking if cleaned
+                    elif self.current[row, col] == 2: #North check
+                            if self.dir == "N":
+                                obsdir.append(["FRONTC", self.pos[0] - self.length//2 - row]) #self.pos[1] - self.length//2 - col is the distance from the north edge to the assessed block
+                            elif self.dir == "S":
+                                obsdir.append(["BACKC", self.pos[0] - self.length//2 - row])
                 #     print("NORTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -257,6 +266,12 @@ class Map:
                             obsdir.append(["BACK", row - self.pos[0] - self.length//2]) #col - self.pos[1] - self.length//2] is the distance from the south edge to the assessed block
                         elif self.dir == "S": 
                             obsdir.append(["FRONT", row - self.pos[0] - self.length//2])
+                    
+                    elif self.current[row, col] == 2: #South check
+                        if self.dir == "N": 
+                            obsdir.append(["BACKC", row - self.pos[0] - self.length//2]) #col - self.pos[1] - self.length//2] is the distance from the south edge to the assessed block
+                        elif self.dir == "S": 
+                            obsdir.append(["FRONTC", row - self.pos[0] - self.length//2])
                 #     print("SOUTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -270,6 +285,12 @@ class Map:
                             obsdir.append(["LEFT", self.pos[1] - self.width//2 - col]) #self.pos[1] - self.width//2 - col refers to the dist between the west edge and the robot
                         elif self.dir == "S":
                             obsdir.append(["RIGHT", self.pos[1] - self.width//2 - col])
+                    
+                    elif self.current[row, col] == 2:
+                        if self.dir == "N":
+                            obsdir.append(["LEFTC", self.pos[1] - self.width//2 - col]) #self.pos[1] - self.width//2 - col refers to the dist between the west edge and the robot
+                        elif self.dir == "S":
+                            obsdir.append(["RIGHTC", self.pos[1] - self.width//2 - col])
                     # print("WEST", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -281,6 +302,12 @@ class Map:
                             obsdir.append(["RIGHT", col - self.pos[1] - self.width//2])
                         elif self.dir == "S":
                             obsdir.append(["LEFT", col - self.pos[1] - self.width//2])
+                    
+                    elif self.current[row, col] == 2:
+                        if self.dir == "N":
+                            obsdir.append(["RIGHTC", col - self.pos[1] - self.width//2])
+                        elif self.dir == "S":
+                            obsdir.append(["LEFTC", col - self.pos[1] - self.width//2])
                     # print("EAST", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -297,6 +324,12 @@ class Map:
                             obsdir.append(["LEFT", self.pos[0] - self.width//2 - row])
                         elif self.dir == "W": 
                             obsdir.append(["RIGHT", self.pos[0] - self.width//2 - row])
+                    
+                    elif self.current[row, col] == 2: #North check
+                        if self.dir == "E":
+                            obsdir.append(["LEFTC", self.pos[0] - self.width//2 - row])
+                        elif self.dir == "W": 
+                            obsdir.append(["RIGHTC", self.pos[0] - self.width//2 - row])
                 #     print("NORTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -308,6 +341,12 @@ class Map:
                             obsdir.append(["RIGHT", row - self.pos[0] - self.width//2])
                         elif self.dir == "W": 
                             obsdir.append(["LEFT", row - self.pos[0] - self.width//2])
+                    
+                    elif self.current[row, col] == 2: #South check
+                        if self.dir == "E":
+                            obsdir.append(["RIGHTC", row - self.pos[0] - self.width//2])
+                        elif self.dir == "W": 
+                            obsdir.append(["LEFTC", row - self.pos[0] - self.width//2])
                 #     print("SOUTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -321,6 +360,12 @@ class Map:
                             obsdir.append(["BACK", self.pos[1] - self.length//2 - col])
                         elif self.dir == "W":
                             obsdir.append(["FRONT", self.pos[1] - self.length//2 - col])
+                    
+                    elif self.current[row, col] == 2:
+                        if self.dir == "E":
+                            obsdir.append(["BACKC", self.pos[1] - self.length//2 - col])
+                        elif self.dir == "W":
+                            obsdir.append(["FRONTC", self.pos[1] - self.length//2 - col])
                 #     print("WEST", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -332,6 +377,12 @@ class Map:
                             obsdir.append(["FRONT", col - self.pos[1] - self.length//2])
                         elif self.dir == "W":
                             obsdir.append(["BACK", col - self.pos[1] - self.length//2])
+                    
+                    elif self.current[row, col] == 2:
+                        if self.dir == "E":
+                            obsdir.append(["FRONTC", col - self.pos[1] - self.length//2])
+                        elif self.dir == "W":
+                            obsdir.append(["BACKC", col - self.pos[1] - self.length//2])
                 #     print("EAST", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -346,6 +397,7 @@ class Map:
         min_LEFT = self.safelim + 1
         min_RIGHT = self.safelim + 1
 
+        #This part checks each combination and updates the smallest value for that direction
         for obs in obsdir:
             if obs[0] == "FRONT":
                 if obs[1] < self.safelim:
@@ -361,6 +413,7 @@ class Map:
                     min_RIGHT = obs[1]
 
         obs_clean = {} #a dictionary that returns the distance of detected obstacle with the direction as index eg. obs_clean["FRONT"]
+        #This part updates the minimum value into the newly created blank dictionary
         if min_FRONT < self.safelim + 1:
             obs_clean["FRONT"] = min_FRONT
         if min_BACK < self.safelim + 1:
@@ -370,7 +423,41 @@ class Map:
         if min_RIGHT < self.safelim + 1:
             obs_clean["RIGHT"] = min_RIGHT
 
+
+        #This part works the same as above but for the cleaning part detected
+
+        min_FRONT = self.safelim + 1 #just outside of scan range so it's definitely larger than all dist here
+        min_BACK = self.safelim + 1
+        min_LEFT = self.safelim + 1
+        min_RIGHT = self.safelim + 1
+
+        #This part checks each combination and updates the smallest value for that direction
+        for obs in obsdir:
+            if obs[0] == "FRONTC":
+                if obs[1] < self.safelim:
+                    min_FRONT = obs[1]
+            elif obs[0] == "BACKC":
+                if obs[1] < self.safelim:
+                    min_BACK = obs[1]
+            elif obs[0] == "LEFTC":
+                if obs[1] < self.safelim:
+                    min_LEFT = obs[1]
+            elif obs[0] == "RIGHTC":
+                if obs[1] < self.safelim:
+                    min_RIGHT = obs[1]
+
         
+        #This part updates the minimum value into the newly created blank dictionary
+        if min_FRONT < self.safelim + 1:
+            obs_clean["FRONTC"] = min_FRONT
+        if min_BACK < self.safelim + 1:
+            obs_clean["BACKC"] = min_BACK
+        if min_LEFT < self.safelim + 1:
+            obs_clean["LEFTC"] = min_LEFT
+        if min_RIGHT < self.safelim + 1:
+            obs_clean["RIGHTC"] = min_RIGHT
+
+
         # print("Obstacles detected:", obs_clean, "Self facing:", self.dir)
         return obs_clean
 
