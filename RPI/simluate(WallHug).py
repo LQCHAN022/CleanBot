@@ -1,6 +1,11 @@
 """
 Tasks:
 Implement logic for when cleaned portion is encoutered
+When this happens, attempt to shift right by std amount the hug cleaned
+
+When faced with stuck, hug obstacle
+When no obstacle to hug, go back to start
+
 
 Implement pathfinding
 When to stop, by coutns or time or coverage of area or rate of cleaning ie. unknown change to clean in a set timing
