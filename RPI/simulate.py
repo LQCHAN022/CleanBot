@@ -1,8 +1,32 @@
 """
 READ THIS
 
-Since the checksurr() function is updated for direction, distance, and the detection of cleaned spots, this file will not work anymore
-If you want to continue to work using this do rollback the version of mapping.py
+WIP NOT READY TO BE RUN
+
+Reimplementation of this file with S motion, taking into account that notion of "corners"
+Rough plan:
+North/South, gradually moving east sweep
+
+Psudo code:
+while north:
+    if left free and not cleaned:
+        hug until south west corner, then resume north south sweep
+        #need to acccount for how to get out
+    elif hit obstacle:
+        turn right
+        move set amount
+        if set amount = 0: #no more space
+            set final = 1
+            go south #at the end point then we'll do pathfinding to closest free and resume cleaning
+        else:
+            turn right
+            go south
+
+
+        
+
+    
+
 
 """
 
