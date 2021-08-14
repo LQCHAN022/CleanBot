@@ -36,7 +36,7 @@ void loop() {
     if (strcmp(state, "ON") == 0) {      //front dir
       analogWrite(PWM_pin, PWM_val);
       digitalWrite(LED_BUILTIN, HIGH);
-      Serial.print("ON: ");Serial.println(PWM_val);
+//      Serial.print("ON: ");Serial.println(PWM_val);
       }
     else if (strcmp(state, "OFF") == 0){
       digitalWrite(PWM_pin, LOW);

@@ -1,3 +1,8 @@
+/*This edition comments out various print statements that might be useful for debugging, but are not necessary for actual implementation
+ * 
+ * 
+ */
+
 #include <AccelStepper.h>   //add libraries
 #include <string.h>
 
@@ -56,7 +61,6 @@ void setup() {
   
   
   Serial.begin(9600); // Start serial communication at 9600 bps
-//  Serial.println("MOVEMENT");
   Serial.setTimeout(5);   //reading the serial takes 3ms - if this isnt hear it will take 1000ms
 
   stepper1.setPinsInverted(true, false, false); //invert direction pins due to orientation
@@ -112,7 +116,7 @@ void loop() {
       }
       else{
         target = stepper2.distanceToGo();
-        Serial.println("FRONT config loaded");
+//        Serial.println("FRONT config loaded");
         valC = 1; //all move at spd
       }
     }
@@ -135,7 +139,7 @@ void loop() {
       }
       else{
         target = stepper2.distanceToGo();
-        Serial.println("BACK config loaded");
+//        Serial.println("BACK config loaded");
         valC = 1; //all move at spd
       }
     }
@@ -155,7 +159,7 @@ void loop() {
       
       
         target = stepper2.distanceToGo();
-        Serial.println("ROTATE CW config loaded");
+//        Serial.println("ROTATE CW config loaded");
         valC = 1; //all move at spd
  
     }
@@ -174,7 +178,7 @@ void loop() {
         stepper4.setSpeed(spd);
       
         target = stepper2.distanceToGo();
-        Serial.println("ROTATE CCW config loaded");
+//        Serial.println("ROTATE CCW config loaded");
         valC = 1; //all move at spd
  
     }
@@ -191,7 +195,7 @@ void loop() {
         stepper4.setSpeed(-spd);
       
         target = stepper2.distanceToGo();
-        Serial.println("LEFT config loaded");
+//        Serial.println("LEFT config loaded");
         valC = 1; //all move at spd
     }
 
@@ -207,7 +211,7 @@ void loop() {
         stepper4.setSpeed(spd);
       
         target = stepper1.distanceToGo();
-        Serial.println("RIGHT config loaded");
+//        Serial.println("RIGHT config loaded");
         valC = 1; //all move at spd
     }
 
@@ -238,7 +242,7 @@ void loop() {
       }
       
         target = dist;
-        Serial.println("CORNER config loaded");
+//        Serial.println("CORNER config loaded");
       
     }
 
@@ -252,7 +256,7 @@ void loop() {
     
     else if (strcmp(dir, "S") == 0) {   //if recieved S then stop
       runFlag = 0;
-      Serial.println("Stopped");
+      Serial.println("STOPPED");
     }
     
     else if (strcmp(dir, "I") == 0) {   //if recieved I then show current positions
@@ -276,7 +280,7 @@ void loop() {
     }
     
     else if (dir == "X") {   //reset the board
-      Serial.println("Resetting Board");
+      Serial.println("RESET");
       delay(500);                         //delay so that the print can finish
       void software_Reset();      {
         asm volatile ("  jmp 0");
@@ -286,11 +290,11 @@ void loop() {
     else if (strcmp(dir, "CLEAN") == 0) {      //turn dir
         cleanFlag = dist;
         stepper5.setSpeed(dist);
-        Serial.print("cleanFlag: "); Serial.println(cleanFlag);
+//        Serial.println("cleanFlag: ");Serial.println(cleanFlag);
 
     }
     
-    else if (strcmp(dir, "OFF") == 0) {      //turn dir
+    else if (strcmp(dir, "OFF") == 0) {      //turn off everything
         digitalWrite(xen, HIGH);
         digitalWrite(yen, HIGH);
         digitalWrite(zen, HIGH);
@@ -299,7 +303,7 @@ void loop() {
        
     }
 
-    else if (strcmp(dir, "ON") == 0) {      //turn dir
+    else if (strcmp(dir, "ON") == 0) {      //turn on everything
         digitalWrite(xen, LOW);
         digitalWrite(yen, LOW);
         digitalWrite(zen, LOW);
@@ -312,8 +316,8 @@ void loop() {
       Serial.println("Incorrect Code!");    //if its not one of the recognised letters
       Serial.print("Incorrect input--");Serial.print("Dir: "); Serial.print(dir); Serial.print(" Dist: "); Serial.println(dist);
     }
-    Serial.print("Dir: "); Serial.print(dir); Serial.print(" --Dist: "); Serial.print(dist); Serial.print(" --Target: "); Serial.print(target); Serial.print(" --Config: ");Serial.println(valC);
-    Serial.print(" --runFlag: "); Serial.println(runFlag);
+//    Serial.print("Dir: "); Serial.print(dir); Serial.print(" --Dist: "); Serial.print(dist); Serial.print(" --Target: "); Serial.print(target); Serial.print(" --Config: ");Serial.println(valC);
+//    Serial.print(" --runFlag: "); Serial.println(runFlag);
   }
 
 
@@ -332,7 +336,7 @@ void loop() {
         target = stepper1.distanceToGo();
         break;
         
-      case 11: //front continuous there's some issue here that makes it run slow
+      case 11: //front continuous there's some issue here that makes it run slow; nah no issue alr it's a hardware limitation thing
         stepper1.runSpeed();
         stepper2.runSpeed();
         stepper3.runSpeed();
@@ -375,7 +379,7 @@ void loop() {
         stepper3.runToPosition();
         stepper4.runToPosition();
         runFlag = 0;
-        Serial.println("case 999 ended");
+//        Serial.println("case 999 ended");
         break;
     }
 
