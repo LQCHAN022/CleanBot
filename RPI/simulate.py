@@ -8,19 +8,132 @@ Rough plan:
 North/South, gradually moving east sweep
 
 Psudo code:
-while north:
-    if left free and not cleaned:
-        hug until south west corner, then resume north south sweep
-        #need to acccount for how to get out
-    elif hit obstacle:
-        turn right
-        move set amount
-        if set amount = 0: #no more space
-            set final = 1
-            go south #at the end point then we'll do pathfinding to closest free and resume cleaning
+"""
+
+from mapping import Map
+import numpy as np
+import time
+import matplotlib.pyplot as plt
+
+#sample map#
+SampleMap1 = np.genfromtxt("C:\\Users\\LQ\\Documents\\NTU\\Year 1 Special Sem\\M&T\\Raspberry Pi\\Making and Tinkering\\LabMap1.csv", delimiter = ",")
+
+
+
+
+Nmap = Map(100, [3,5]) #redundant but I like it here
+Nmap.current = SampleMap1
+# Nmap.showcurrent(-1)
+Nmap.setpos(97, 3, "N") #ownself set
+Nmap.sethome(97, 3, "N") #same as above
+Nmap.expandcheck()
+Nmap.checksurr()
+Nmap.showcurrent(1)
+running = True
+state = "NORTH" #current state
+pstate = None #previous state
+
+while running:
+    while state == "NORTH" or state == "SOUTH":
+        if Nmap.checksurr().get("FRONT", 10) >= 4:
+            Nmap.move(0, 1)
         else:
-            turn right
-            go south
+            pstate = state
+            state = "OBSTACLE"
+
+    while state == "OBSTACLE":
+        if Nmap.checksurr().get("FRONT", 10) >= 4:
+            if pstate == "NORTH":
+                if Nmap.checksurr().get("RIGHT", 10) >= 4:
+                    Nmap.move(90, 0)
+                    state = "EAST"
+                else:
+                    while Nmap.checksurr().get("RIGHT", 10) < 4 and Nmap.checksurr().get("BACK", 10) >= 4: #while right not clear and back clear
+                        Nmap.move(0,-1)
+                    else:
+                        if Nmap.hecksurr().get("RIGHT", 10) >= 4: #if right cleared alr
+                            Nmap.move(90, 0)
+                            state = "EAST"
+                        else: #if back hit limit alr
+                            state = "RIGHT_WALL"
+
+            elif pstate == "SOUTH":
+                if Nmap.checksurr().get("LEFT", 10) >= 4:
+                    Nmap.move(270, 0)
+                    state = "EAST"
+                else:
+                    while Nmap.checksurr().get("LEFT", 10) < 4 and Nmap.checksurr().get("BACK", 10) >= 4: #while left not clear and back clear
+                        Nmap.move(0,-1)
+                    else:
+                        if Nmap.checksurr().get("LEFT", 10) >= 4: #if left cleared alr
+                            Nmap.move(270, 0)
+                            state = "EAST"
+                        else: #if back hit limit alr
+                            state = "RIGHT_WALL"
+
+
+
+        else: #reverse until front is free
+            Nmap.move(0, -1)
+
+    while state == "EAST": 
+        if pstate == "NORTH":
+            if Nmap.checksurr().get("RIGHT", 10) < 4 and Nmap.checksurr().get("FRONT", 10) < 4: #if both RIGHT and FRONT blocked
+                while Nmap.checksurr().get("RIGHT", 10) < 4 and Nmap.checksurr().get("BACK", 10) >= 4: #while RIGHT not clear and BACK clear
+                        Nmap.move(0,-1)
+                else:
+                    if Nmap.checksurr().get("RIGHT", 10) >= 4: #if RIGHT cleared alr
+                        Nmap.move(270, 0)
+                        state = "EAST"
+                    else: #if back hit limit alr
+                        state = "RIGHT_WALL"
+            elif Nmap.checksurr().get("RIGHT", 10) < 4 and Nmap.checksurr().get("FRONT", 10) >= 4: #if only RIGHT blocked
+                Nmap.move(0, 1)
+            elif Nmap.checksurr().get("FRONT", 10) < 4 and Nmap.checksurr().get("RIGHT", 10) >= 4: #if only FRONT blocked
+                Nmap.move(0, -1)
+            else: #both sides free
+                steps = 4
+                for _ in range(steps):
+                    if Nmap.checksurr().get("FRONT", 10) > 4: # >4 instead of >= 4 intentional to leave space to turn, can be sub with safelim later
+                        Nmap.move(0, 1)
+                    else:
+                        break
+                pstate = state
+                state = "SOUTH"
+                Nmap.move(90, 0)
+
+        elif pstate == "SOUTH":
+            if Nmap.checksurr().get("LEFT", 10) < 4 and Nmap.checksurr().get("FRONT", 10) < 4: #if both LEFT and FRONT blocked
+                while Nmap.checksurr().get("LEFT", 10) < 4 and Nmap.checksurr().get("BACK", 10) >= 4: #while LEFT not clear and BACK clear
+                        Nmap.move(0,-1)
+                else:
+                    if Nmap.checksurr().get("LEFT", 10) >= 4: #if LEFT cleared alr
+                        Nmap.move(270, 0)
+                        state = "EAST"
+                    else: #if back hit limit alr
+                        state = "RIGHT_WALL"
+            elif Nmap.checksurr().get("LEFT", 10) < 4 and Nmap.checksurr().get("FRONT", 10) >= 4: #if only LEFT blocked
+                Nmap.move(0, 1)
+            elif Nmap.checksurr().get("FRONT", 10) < 4 and Nmap.checksurr().get("RIGHT", 10) >= 4: #if only FRONT blocked
+                Nmap.move(0, -1)
+            else: #both sides free
+                steps = 4
+                for _ in range(steps):
+                    if Nmap.checksurr().get("FRONT", 10) > 4: # >4 instead of >= 4 intentional to leave space to turn, can be sub with safelim later
+                        Nmap.move(0, 1)
+                    else:
+                        break
+                pstate = state
+                state = "NORTH"
+                Nmap.move(270, 0)
+    
+    if state == "RIGHT_WALL":
+        print("That's it folks")
+        running = False
+                
+                
+                            
+
 
 
         
@@ -40,9 +153,9 @@ import matplotlib.pyplot as plt
 #sample map#
 SampleMap1 = np.genfromtxt("C:\\Users\\LQ\\Documents\\NTU\\Year 1 Special Sem\\M&T\\Raspberry Pi\\Making and Tinkering\\LabMap1.csv", delimiter = ",")
 
-"""
+
 Initilising the sample start
-"""
+
 Nmap = Map(100, [3,5]) #redundant but I like it here
 Nmap.current = SampleMap1
 # Nmap.showcurrent(-1)
@@ -134,4 +247,4 @@ while running:
 
 
 
-
+"""
