@@ -91,7 +91,18 @@ class Map:
         Places an obstacle at a set direction (prefixed length or ...?) at a set distance from the robot
         Obstacle will be one layer thick
         """
-        pass
+        if dir == "FRONT":
+            for col in range(self.pos[1] - self.width//2, self.pos[1] + self.width//2 + 1):
+                self.current[self.pos[0] + self.length//2 + dist, col] = 2
+        elif dir == "RIGHT":
+            for row in range(self.pos[0] - self.length//2, self.pos[0] - self.length//2 + 1):
+                self.current[row, self.pos[1] + self.width//2 + dist] = 2
+        elif dir == "LEFT":
+            for row in range(self.pos[0] - self.length//2, self.pos[0] - self.length//2 + 1):
+                self.current[row, self.pos[1] - self.width//2 - dist] = 2
+        elif dir == "BACK":
+            for col in range(self.pos[1] - self.width//2, self.pos[1] + self.width//2 + 1):
+                self.current[self.pos[0] - self.length//2 - dist, col] = 2
     
 
     def getcurrentpos(self): #returns the x, y, dir of current position
