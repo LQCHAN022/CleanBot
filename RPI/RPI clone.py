@@ -4,8 +4,9 @@
 #dmesg | grep "tty" to find port name
 
 import serial,time
-import mapping as Map
+from mapping import Map
 from serial.serialutil import SerialException
+from Robot import Robot
 
 """
 This part is to check which arduino is which by checking through all the ports
@@ -86,61 +87,5 @@ Format is going to be:
 3. Get instructions based on map
 4. Send out commands (arduinoMovement, arduinoPump)
 """
-running = True
-Accel = []
-Echo = []
-#individual sensors and their directions
-FRONT1 = None
-BACK1 = None
-RIGHT1 = None
-LEFT1 = None
 
-Bump = "CLEAR"
-Button = 0
-
-while running:
-    try:
-        """
-        Sensor values include:
-        1. Accel [Angle_x, Angle_Y, Angle_Z]
-        2. Echo [Sensor1, 2, ... etc]
-        3. Bump [CLEAR/BUMP]
-        4. Optical (but this is separate for now)
-        """
-        
-
-        while arduinoSensor.in_waiting > 0:
-            sensor_vals = arduinoSensor.readline().decode()
-            sensor_vals = sensor_vals[:-1]
-            sensor_vals = sensor_vals.split()
-            if sensor_vals[0] == "ACCEL":
-                Accel = sensor_vals[1:]
-            elif sensor_vals[0] == "ECHO":
-                Echo = sensor_vals[1:]
-                #Assigning each reading to individual variable to make life easier
-                FRONT1 = Echo[0]
-                RIGHT1 = Echo[1]
-                BACK1 = Echo[2]
-                LEFT1 = Echo[3]
-            elif sensor_vals[0] == "BUMP":
-                Bump = "BUMP"
-            elif sensor_vals[0] == "CLEAR":
-                Bump = "CLEAR"
-            elif sensor_vals[0] == "B1":
-                if Button == 0:
-                    Button = 1
-                else:
-                    Button = 0
-        
-        if Button == 1: #command to be issued
-            cmd=input("Enter command: ")
-            # cmd+=" "
-            arduinoMove.write(cmd.encode())
-            Button = 0
-
-
-    except KeyboardInterrupt:
-        print("\nclosing file")
-        arduinoSensor.close()
-        arduinoMove.close()
-        running = False
+# robot = Robot()
