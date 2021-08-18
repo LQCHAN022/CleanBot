@@ -32,6 +32,9 @@ class Map:
         self.safelim = 11 #how much space(-1) to raise that an obstacle is in front      # # # # #   ▲
         self.length = size[0] #note that the length is shorter than the width            # # # # # length
         self.width = size[1]                                                             # # # # #   ▼
+        self.deform = [0, 0] #how many grids is it modified by from the original delta due to map expand
+
+
 
     def setpos(self, y, x, dir): #sets position by coordinates and direction
         self.current[self.current == 10] = 2 #sets all 1 and 9 to 0 to clear old position
@@ -68,6 +71,12 @@ class Map:
     
         self.pos = [y, x]
 
+    def DeltaPos(self, Delta, dir):
+        """
+        Takes the true coordinates delta from robot class and modifies it to display on the map
+        """
+        self.setpos(Delta[0] + self.deform[0], Delta[1] + self.deform[1], dir)
+    
     def updatepos(self): 
         """
         #pushes the changes to attributes to the map/self.current
@@ -90,19 +99,150 @@ class Map:
         """
         Places an obstacle at a set direction (prefixed length or ...?) at a set distance from the robot
         Obstacle will be one layer thick
+        Note that dist 1 will be in front the robot, there is no dist 0
+        dir takes FRONT, RIGHT, LEFT, BACK
+        Note orientation of robot as well
         """
-        if dir == "FRONT":
-            for col in range(self.pos[1] - self.width//2, self.pos[1] + self.width//2 + 1):
-                self.current[self.pos[0] + self.length//2 + dist, col] = 2
-        elif dir == "RIGHT":
-            for row in range(self.pos[0] - self.length//2, self.pos[0] - self.length//2 + 1):
-                self.current[row, self.pos[1] + self.width//2 + dist] = 2
-        elif dir == "LEFT":
-            for row in range(self.pos[0] - self.length//2, self.pos[0] - self.length//2 + 1):
-                self.current[row, self.pos[1] - self.width//2 - dist] = 2
-        elif dir == "BACK":
-            for col in range(self.pos[1] - self.width//2, self.pos[1] + self.width//2 + 1):
-                self.current[self.pos[0] - self.length//2 - dist, col] = 2
+        w2 = self.width//2
+        l2 = self.length//2
+
+        if self.dir == "N":
+            if dir == "FRONT":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    self.current[self.pos[0] - l2 - dist, col] = 0
+            elif dir == "BACK":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    self.current[self.pos[0] + l2 + dist, col] = 0
+            elif dir == "RIGHT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    self.current[row, self.pos[1] + w2 + dist] = 0
+            elif dir == "LEFT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    self.current[row, self.pos[1] - w2 - dist] = 0
+        
+        elif self.dir == "S":
+            if dir == "FRONT":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    self.current[self.pos[0] + l2 + dist, col] = 0
+            elif dir == "BACK":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    self.current[self.pos[0] - l2 - dist, col] = 0
+            elif dir == "RIGHT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    self.current[row, self.pos[1] - w2 - dist] = 0
+            elif dir == "LEFT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    self.current[row, self.pos[1] + w2 + dist] = 0
+
+        elif self.dir == "E":
+            if dir == "FRONT":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    self.current[row, self.pos[1] + l2 + dist] = 0
+            elif dir == "BACK":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    self.current[row, self.pos[1] - l2 - dist] = 0
+            elif dir == "RIGHT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    self.current[self.pos[0] + w2 + dist, col] = 0
+            elif dir == "LEFT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    self.current[self.pos[0] - w2 - dist, col] = 0
+
+        elif self.dir == "W":
+            if dir == "FRONT":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    self.current[row, self.pos[1] - l2 - dist] = 0
+            elif dir == "BACK":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    self.current[row, self.pos[1] + l2 + dist] = 0
+            elif dir == "RIGHT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    self.current[self.pos[0] - w2 - dist, col] = 0
+            elif dir == "LEFT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    self.current[self.pos[0] + w2 + dist, col] = 0
+
+
+
+    def placeclr_rel(self, dir, dist):
+        """
+        Places an clear at a set direction (prefixed length) to a set distance from the robot
+        Minimum distance is 1, right in front of the robot
+        """
+        w2 = self.width//2
+        l2 = self.length//2
+
+        if self.dir == "N":
+            if dir == "FRONT":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    for row in range(self.pos[0] - l2 - dist, self.pos[0] - l2):
+                        self.current[row, col] = 1
+            elif dir == "BACK":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    for row in range(self.pos[0] + l2 + 1, self.pos[0] + l2 + dist + 1):
+                        self.current[row, col] = 1
+            elif dir == "RIGHT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    for col in range(self.pos[1] + w2 + 1, self.pos[1] + w2 + dist + 1):
+                        self.current[row, col] = 1
+            elif dir == "LEFT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    for col in range(self.pos[1] - w2 - dist, self.pos[0] - w2):
+                        self.current[row, col] = 1
+        
+        elif self.dir == "S":
+            if dir == "FRONT":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    for row in range(self.pos[0] + l2 + 1, self.pos[0] + l2 + dist + 1):
+                        self.current[row, col] = 1
+            elif dir == "BACK":
+                for col in range(self.pos[1] - w2, self.pos[1] + w2 + 1):
+                    for row in range(self.pos[0] - l2 - dist, self.pos[0] - l2):
+                        self.current[row, col] = 1
+            elif dir == "RIGHT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    for col in range(self.pos[1] - w2 - dist, self.pos[1] - w2):
+                        self.current[row, col] = 1
+            elif dir == "LEFT":
+                for row in range(self.pos[0] - l2, self.pos[0] + l2 + 1):
+                    for col in range(self.pos[1] + w2 + 1, self.pos[1] + w2 + dist):
+                        self.current[row, col] = 1
+
+        elif self.dir == "E":
+            if dir == "FRONT":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    for col in range(self.pos[1] + l2 + 1, self.pos[1] + l2 + dist + 1):
+                        self.current[row, col] = 1
+            elif dir == "BACK":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    for col in range(self.pos[1] - l2 - dist, self.pos[1] - l2):
+                        self.current[row, col] = 1
+            elif dir == "RIGHT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    for row in range(self.pos[0] + w2 + 1, self.pos[0] + w2 + dist + 1):
+                        self.current[row, col] = 1
+            elif dir == "LEFT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    for row in range(self.pos[0] - w2 - dist, self.pos[0] - w2):
+                        self.current[row, col] = 1
+
+        elif self.dir == "W":
+            if dir == "FRONT":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    for col in range(self.pos[1] - l2 - dist, self.pos[1] - l2):
+                        self.current[row, col] = 1
+            elif dir == "BACK":
+                for row in range(self.pos[0] - w2, self.pos[0] + w2 + 1):
+                    for col in range(self.pos[1] + l2 + 1, self.pos[1] + l2 + dist + 1):
+                        self.current[row, col] = 1
+            elif dir == "RIGHT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    for row in range(self.pos[0] - w2 - dist, self.pos[0] - w2):
+                        self.current[row, col] = 1
+            elif dir == "LEFT":
+                for col in range(self.pos[1] - l2, self.pos[1] + l2 + 1):
+                    for row in range(self.pos[0] + w2 + 1, self.pos[0] + w2 + dist + 1):
+                        self.current[row, col] = 0
     
 
     def getcurrentpos(self): #returns the x, y, dir of current position
@@ -138,11 +278,13 @@ class Map:
             self.cols += size
             self.pos[1] += size
             self.home[1] += size
+            self.deform[1] += size
         elif dir == "N":
             self.current = np.insert(self.current, 0, np.full([size, self.cols], 3), axis = 0)
             self.rows += size
             self.pos[0] += size
             self.home[0] += size
+            self.deform[0] += size
         elif dir == "S":
             self.current = np.append(self.current, np.full([size, self.cols], 3), axis = 0)
             self.rows += size
@@ -198,7 +340,7 @@ class Map:
                 self.pos[0] -= dist
             elif dir_rel == 90:
                 self.dir = "E"
-            elif dir_rel == 190:
+            elif dir_rel == 180:
                 self.dir = "s"
             elif dir_rel == 270:
                 self.dir = "W"
@@ -208,7 +350,7 @@ class Map:
                 self.pos[1] += dist
             elif dir_rel == 90:
                 self.dir = "S"
-            elif dir_rel == 190:
+            elif dir_rel == 180:
                 self.dir = "W"
             elif dir_rel == 270:
                 self.dir = "N"
@@ -218,7 +360,7 @@ class Map:
                 self.pos[0] += dist
             elif dir_rel == 90:
                 self.dir = "W"
-            elif dir_rel == 190:
+            elif dir_rel == 180:
                 self.dir = "N"
             elif dir_rel == 270:
                 self.dir = "E"
@@ -228,7 +370,7 @@ class Map:
                 self.pos[1] -= dist
             elif dir_rel == 90:
                 self.dir = "N"
-            elif dir_rel == 190:
+            elif dir_rel == 180:
                 self.dir = "E"
             elif dir_rel == 270:
                 self.dir = "S"
