@@ -46,6 +46,7 @@ int startTime;    //for calc speed
 int spd = 8192; //number of steps per revolution
 char* dir;
 long dist;
+int steps; //this is to keep track of the number of steps and update it over to the RPI
 
 void setup() {
   pinMode(xen, OUTPUT); //enabling the motors
@@ -97,7 +98,7 @@ void loop() {
     sscanf(distString, "%d", &dist);
     strupr(dir); //converts string to uppercase
 
-    
+
     if (strcmp(dir, "FRONT") == 0) {      //front dir
       int distused = (dist==-1)?-1000:dist;
       stepper1.move(distused);
@@ -252,6 +253,7 @@ void loop() {
     else if (strcmp(dir, "R") == 0) {   //if recieved R then run
       runFlag = 1;
       dist = 0;
+      steps = 0; //steps 
     }
     
     else if (strcmp(dir, "S") == 0) {   //if recieved S then stop
@@ -326,6 +328,10 @@ void loop() {
   }
 
   if (runFlag == 1) {   //if run command was sent
+    if (steps++ >= 1435){ //update step every step and send over ever 1435 steps, equivalent to 5 cm
+      Serial.print("STEPS "); Serial.println(steps);
+      steps = 0;
+    }
     switch(valC){
       case 1: //for front
         
@@ -385,7 +391,9 @@ void loop() {
 
     if (target == 0) {   //if the stepper has reached destination
       runFlag = 0;                              //turn off run flag
-      Serial.println("Move complete");
+      Serial.print("STEPS "); Serial.println(steps);
+      steps = 0; 
+      Serial.println("MOVE_COMPLETE");
       }
   }
 }
