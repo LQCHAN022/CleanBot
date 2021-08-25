@@ -87,5 +87,150 @@ Format is going to be:
 3. Get instructions based on map
 4. Send out commands (arduinoMovement, arduinoPump)
 """
+"""
+Task list:
+1. Pathfinding
+2. Configure optical
+3. Convert the thing below to work with robot
+4. Adjust speed of motors
+5. Determine the power required
+6. Set up the rest of the sensors
 
-# robot = Robot()
+How it flows:
+scan arduinoSensor to scan and process surrounding data
+access attributes in logic and determine what to do
+scan arduinoMove in case
+move to move (but note that map does not update from this)
+scan arduinoMove to get how much travelled or update orientation ALWAYS SCAN BEFORE AND AFTER MOVEMENT COMMAND
+"""
+robot = Robot(arduinoSensor, arduinoMove, arduinoPump)
+Nmap = robot.Nmap
+safelim = 4
+
+Nmap.expandcheck()
+# Nmap.showcurrent(1)
+running = True
+
+state = "NORTH" #current state //note that these state are for the logic and not for the robot action state
+pstate = None #previous state
+
+while robot.B2:
+    robot.scan()
+
+while running:
+    robot.scan()
+
+    while state == "NORTH" or state == "SOUTH":
+        robot.scan()
+        if Nmap.checksurr().get("FRONT", 10) >= safelim:
+            if robot.state == "STOP":
+                robot.move(0, -1) #move forward indefinitely
+                robot.cleanon()
+        else:
+            robot.stopall() #staph
+            pstate = state
+            state = "OBSTACLE"
+
+    while state == "OBSTACLE":
+        robot.scan()
+        if Nmap.checksurr().get("FRONT", 10) < safelim: #if front has something, redundant but just in case
+            if pstate == "NORTH": 
+                if Nmap.checksurr().get("RIGHT", 10) >= safelim: #if right is clear
+                    robot.move(90) #command will stay here until movement is finished, which also makes it prone to accidents but eh
+                    state = "EAST"
+                else:
+                    robot.scan()
+                    while Nmap.checksurr().get("RIGHT", 10) < safelim and Nmap.checksurr().get("BACK", 10) >= safelim: #while right not clear and back clear
+                        robot.scan()
+                        if robot.state == "STOP":
+                            robot.move(180, -1) #reverse
+                    else:
+                        if Nmap.checksurr().get("RIGHT", 10) >= safelim: #if right cleared alr
+                            robot.move(90)
+                            state = "EAST"
+                        else: #if back hit limit alr
+                            state = "RIGHT_WALL"
+
+            elif pstate == "SOUTH":
+                if Nmap.checksurr().get("LEFT", 10) >= safelim:
+                    robot.move(270)
+                    state = "EAST"
+                else:
+                    while Nmap.checksurr().get("LEFT", 10) < safelim and Nmap.checksurr().get("BACK", 10) >= safelim: #while left not clear and back clear
+                        robot.scan()
+                        if robot.state == "STOP":
+                            robot.move(180, -1)
+                    else:
+                        if Nmap.checksurr().get("LEFT", 10) >= safelim: #if left cleared alr
+                            robot.move(270)
+                            state = "EAST"
+                        else: #if back hit limit alr
+                            state = "RIGHT_WALL"
+
+
+
+        else: #go back to whatever
+            state = pstate
+
+    while state == "EAST": 
+        robot.scan()
+        if pstate == "NORTH":
+            if Nmap.checksurr().get("RIGHT", 10) < safelim and Nmap.checksurr().get("FRONT", 10) < safelim: #if both RIGHT and FRONT blocked
+                while Nmap.checksurr().get("RIGHT", 10) < safelim and Nmap.checksurr().get("BACK", 10) >= safelim: #while RIGHT not clear and BACK clear
+                        robot.scan()
+                        if robot.state == "STOP":
+                            robot.move(180, -1)
+                else:
+                    if Nmap.checksurr().get("RIGHT", 10) >= safelim: #if RIGHT cleared alr
+                        robot.move(270)
+                        state = "SOUTH"
+                    else: #if back hit limit alr
+                        state = "RIGHT_WALL"
+            elif Nmap.checksurr().get("RIGHT", 10) < safelim and Nmap.checksurr().get("FRONT", 10) >= safelim: #if only RIGHT blocked
+                if robot.state == "STOP":
+                    robot.move(0, -1)
+            elif Nmap.checksurr().get("FRONT", 10) < safelim and Nmap.checksurr().get("RIGHT", 10) >= safelim: #if only FRONT blocked
+                if robot.state == "STOP":
+                    robot.move(180, -1)
+            else: #both sides free
+                robot.move(0, 4305)
+                while robot.state != "STOP": #while moving just carry on
+                    robot.scan()
+                    if Nmap.checksurr().get("FRONT", 10) < safelim:
+                        robot.stopall()
+                pstate = state
+                state = "SOUTH"
+                robot.move(90)
+
+        elif pstate == "SOUTH":
+            if Nmap.checksurr().get("LEFT", 10) < safelim and Nmap.checksurr().get("FRONT", 10) < safelim: #if both LEFT and FRONT blocked
+                while Nmap.checksurr().get("LEFT", 10) < safelim and Nmap.checksurr().get("BACK", 10) >= safelim: #while LEFT not clear and BACK clear
+                        robot.scan()
+                        if robot.state == "STOP":
+                            robot.move(180,-1)
+                else:
+                    if Nmap.checksurr().get("LEFT", 10) >= safelim: #if LEFT cleared alr
+                        robot.move(270)
+                        state = "NORTH"
+                    else: #if back hit limit alr
+                        state = "RIGHT_WALL"
+            elif Nmap.checksurr().get("LEFT", 10) < safelim and Nmap.checksurr().get("FRONT", 10) >= safelim: #if only LEFT blocked
+                if robot.state == "STOP":
+                    robot.move(0, -1)
+                    robot.cleanon()
+            elif Nmap.checksurr().get("FRONT", 10) < safelim and Nmap.checksurr().get("LEFT", 10) >= safelim: #if only FRONT blocked
+                if robot.state == "STOP":
+                    robot.move(180, -1)
+            else: #both sides free
+                robot.move(0, 4305)
+                while robot.state != "STOP": #while moving just carry on
+                    robot.scan()
+                    if Nmap.checksurr().get("FRONT", 10) < safelim:
+                        robot.stopall()
+                pstate = state
+                state = "NORTH"
+                robot.move(270)
+    
+    if state == "RIGHT_WALL":
+        print("That's it folks")
+        running = False
