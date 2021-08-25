@@ -38,7 +38,7 @@
 * void
 
 ## cleanon()`method`
-`void self.cleanon(pwm, sps)`
+`void self.cleanon(pwm = 100, sps = 1000)`
 #### Description
 * Starts the roller and the pump
 #### Parameters
