@@ -1,5 +1,3 @@
+dist = 1.5
 
-dist = 27000
-
-cmd = "E " + str(dist)
-print(cmd)
+print(round(dist))
