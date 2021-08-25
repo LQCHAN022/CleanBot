@@ -260,6 +260,17 @@ void limitdetect(){
   }
   lastLimitState1 = limitState1;
 //  delay(50);
+
+  limitState2 = digitalRead(limitPin2);
+    if(limitState2 != lastLimitState2){
+      if(lastLimitState2 == LOW){ //if this is a transition from LOW to HIGH aka pressing button
+        Serial.println("CLEAR");
+      }
+      else{
+        Serial.println("BUMP");
+      }
+    }
+    lastLimitState2 = limitState2;
 }
 
 void opticalreading(){
