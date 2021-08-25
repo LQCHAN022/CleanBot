@@ -17,8 +17,10 @@ class Robot():
         
         #map initialisation will be done here
         self.Nmap = Map(100, [9, 15]) 
-        self.Nmap.setpos(50, 50, "N")
-        self.dir = "N"
+        self.Nmap.setpos(0, 0, "N")
+        self.Nmap.sethome(0, 0, "N")
+        self.Nmap.expandcheck()
+        self.setdir("N")
         
         self.Echo = {"FRONT": None, "RIGHT": None, "LEFT": None} #the data in this is in cm, not grids
         self.EchoHist = {"FRONT": [], "RIGHT": [], "LEFT": []} #This is a dictionary with lists containing history of echo readings and whenever there are two consecutive readings it will pass to self.Echo
@@ -26,11 +28,12 @@ class Robot():
         self.Accel = {} 
         self.Bump = "CLEAR"
         
-        self.B1 = 0
-        self.B2 = 0
+        self.B1 = False
+        self.B2 = False
 
     def newstate(self, newstate):
         """
+        Updates the state but implemented in functions already
         Just a smaller function to reduce two lines of code into one
         """
         self.pstate = self.state
@@ -42,6 +45,10 @@ class Robot():
         Handles negative steps for rotation ie it will turn the other way
         Note that forward and backwards different than in mapping cause -1 with front will cause infinite running
         """
+        self.stop() #failsafe
+        if not self.B2:
+            return
+
         if dir == 0:
             self.AMove.write("FRONT {}".format(dist).encode())
             self.newstate("FRONT")
@@ -64,6 +71,11 @@ class Robot():
                 self.Accel["PZ"] = self.Accel["Z"]
         self.rotate = False
         self.AMove("R".encode())
+        
+        #set things to pause until rotation complete
+        if dir == 90 or dir == 270:
+            while not self.rotate:
+                self.scan()
     
     def stop(self):
         """
@@ -72,7 +84,7 @@ class Robot():
         self.AMove.write("S".encode())
         self.newstate("STOP")
 
-    def cleanon(self, pwm, sps):
+    def cleanon(self, pwm = 100, sps = 1000):
         """
         This method aims to start the cleaning process
         Activates roller and pump
@@ -98,6 +110,7 @@ class Robot():
 
     def setdir(self, dir):
         """
+        Updates both the self.dir in Robot and in the map
         Makes-my-life-easier function
         """
         self.dir = dir
@@ -178,6 +191,7 @@ class Robot():
                     """
                     self.B1 = True if self.B1 == False else False
                     self.B2 = True if self.B2 == False else False
+                    
 
                 elif Sense_vals[0] == "OPTICAL":
                     pass
@@ -194,6 +208,8 @@ class Robot():
                 Move_vals = Move_vals[:-1] #take away the \n at the back
                 Move_vals = Move_vals.split() #split it into elements in a list, based on space " "
                 if Move_vals[0] == "MOVE_COMPLETE":
+                    #this part takes note of the rotation such that it updates the direction when the rotation is finished
+                    #doesn't do anything when movement front and reverse stops
                     self.newstate("STOP")
                     if self.dir == "N":
                         if self.pstate == "ETURN":
@@ -217,8 +233,8 @@ class Robot():
                             self.setdir("S")
                     #Need to check if previous turn was 90 degrees
                     #The sensor seems sus so I'm gonna leave it first
-
-                    self.rotate = True #remember to set it at false when executing the initial turn
+                    if self.pstate == "QTURN" or self.pstate == "ETURN":
+                        self.rotate = True #remember to set it at false when executing the initial turn
                 
                 elif Move_vals[0] == "STEPS":
                     grids = Move_vals[1]/1435 #grids is a temporary local variable cause I don't feel like typing the entire thing
@@ -283,9 +299,13 @@ class Robot():
         """
         self.read("SENSOR")
         self.read("MOVE")
+        if self.B2 == False:
+            self.stopall()
         #to get the theoretical location we need to ascertain how many steps were moved
         
         #This one updates the obstacles and free spaces
+        #This one updates the position according to any new movements
+        self.Nmap.DeltaPos(round(self.Delta), round(self.dir))
         
         for dir in ["FRONT", "LEFT", "RIGHT"]:
             self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
@@ -295,6 +315,5 @@ class Robot():
             self.Nmap.placeob_rel("FRONT", 1)
             self.stop()
 
-        #This one updates the position according to any new movements
-        self.Nmap.DeltaPos(self.Delta, self.dir)
+        
 
