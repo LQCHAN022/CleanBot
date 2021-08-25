@@ -98,3 +98,36 @@
 * None
 #### Returns
 * void
+
+## state`attribute`
+`String self.state`
+#### Description
+* Movement that the Robot is doing now
+* Takes values of `FRONT`, `BACK`, `RIGHT`, `LEFT`, `ETURN`, `QTURN`, `STOP`
+
+## rotate`attribute`
+`Boolean self.rotate`
+#### Description
+* Shows if rotation is completed
+* False when rotation is starting, True when rotation is completed
+
+## Echo`attribute`
+`dict self.Echo`
+#### Description
+* Dictionary that returns direction to obstacle `int dist` in cm depending on direction `FRONT`, `BACK`, `RIGHT`, `LEFT`
+
+## Accel`attribute`
+`dict self.Accel`
+#### Description
+* Dictionary that returns angles in different axis `float angle` in degrees depending on axis `X`, `Y`, `Z`
+
+## Bump`attribute`
+`String self.Bump`
+#### Description
+* Status of bumper, takes either `CLEAR` or `BUMP`
+
+## Bx`attribute`
+`Boolean self.Bx`
+#### Description
+* x in range(1, 3) for total of 2 buttons
+* Takes values of 0 or 1
