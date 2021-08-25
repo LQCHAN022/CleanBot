@@ -43,7 +43,7 @@ int runFlag = 0;    //Run the stepper
 int cleanFlag = 0;
 long target = 0;
 int startTime;    //for calc speed
-int spd = 8192; //number of steps per revolution
+int spd = 2870; //number of steps per revolution
 char* dir;
 long dist;
 int steps; //this is to keep track of the number of steps and update it over to the RPI
