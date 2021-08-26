@@ -1,7 +1,11 @@
 from mapping import Map
 import math
+import serial,time
+from mapping import Map
+from serial.serialutil import SerialException
+
 class Robot():
-    def __innit__(self, arduinoSensor, arduinoMove, arduinoPump):
+    def __init__(self, arduinoSensor, arduinoMove, arduinoPump):
         #These three are responsible of tracking the robot state of motion 
         self.state = None #what is the robot doing now, eg. FRONT, BACK, RIGHT, LEFT, ETURN, QTURN, ...
         self.pstate = None #used to record previous state
@@ -31,6 +35,11 @@ class Robot():
         self.B1 = False
         self.B2 = False
 
+    def printattr(self):
+        print("State:", self.state)
+        print("Delta:", self.Delta)
+        print("Rotate:", self.rotate)
+
     def newstate(self, newstate):
         """
         Updates the state but implemented in functions already
@@ -45,32 +54,34 @@ class Robot():
         Handles negative steps for rotation ie it will turn the other way
         Note that forward and backwards different than in mapping cause -1 with front will cause infinite running
         """
-        self.stop() #failsafe
-        if not self.B2:
-            return
-
+        # self.stop() #failsafe
+        # if not self.B2:
+        #     return
+        time.sleep(0.5)
+        print("Move passed with", dir, dist)
         if dir == 0:
-            self.AMove.write("FRONT {}".format(dist).encode())
+            self.AMove.write("FRONT {}\n".format(dist).encode())
             self.newstate("FRONT")
         elif dir == 180:
-            self.AMove.write("BACK {}".format(dist).encode())
+            self.AMove.write("BACK {}\n".format(dist).encode())
             self.newstate("BACK")
         else:
             if dist < 0:
                 dir = 90 if dir == 270 else 270
                 dist = -dist
             if dir == 90:
-                cmd = "E " + str(dist)
+                cmd = "E " + str(dist) + "\n"
                 self.AMove.write(cmd.encode())
                 self.newstate("ETURN")
-                self.Accel["PZ"] = self.Accel["Z"]
+                # self.Accel["PZ"] = self.Accel["Z"]
             elif dir == 270:
-                cmd = "Q " + str(dist)
+                cmd = "Q " + str(dist) + "\n"
                 self.AMove.write(cmd.encode())
                 self.newstate("QTURN")
-                self.Accel["PZ"] = self.Accel["Z"]
+                # self.Accel["PZ"] = self.Accel["Z"]
         self.rotate = False
-        self.AMove("R".encode())
+        time.sleep(1)
+        self.AMove.write("R\n".encode())
         
         #set things to pause until rotation complete
         if dir == 90 or dir == 270:
@@ -81,31 +92,32 @@ class Robot():
         """
         This method aims to stop the robot
         """
-        self.AMove.write("S".encode())
+        self.AMove.write("S\n".encode())
         self.newstate("STOP")
 
-    def cleanon(self, pwm = 100, sps = 1000):
+    def cleanon(self, pwm = 255, sps = 1000):
         """
         This method aims to start the cleaning process
         Activates roller and pump
         pwm: duty cycle of pump
         sps: steps per second of roller motor
         """
-        self.APump.write("ON {}".format(pwm).encode())
-        self.Amove.write("CLEAN {}".format(sps).encode())
+        self.APump.write("ON {}\n".format(pwm).encode())
+        self.AMove.write("CLEAN {}\n".format(sps).encode())
     
     def cleanoff(self):
         """
         This method turns off all cleaning related devices
         """
-        self.APump.write("OFF".encode())
-        self.Amove.write("CLEAN 0".encode())
+        self.APump.write("OFF\n".encode())
+        self.AMove.write("CLEAN 0\n".encode())
 
     def stopall(self):
         """
         This method aim to stop everything
         """
         self.stop()
+        time.sleep(0.5)
         self.cleanoff()
 
     def setdir(self, dir):
@@ -135,7 +147,7 @@ class Robot():
             7. self.(Optical stuff, not yet)
             """
             while self.ASense.in_waiting > 0: #while there's stuff in the buffer to be read
-                Sense_vals = arduino.readline().decode() #read the string
+                Sense_vals = self.ASense.readline().decode() #read the string
                 Sense_vals = Sense_vals[:-1] #take away the \n at the back
                 Sense_vals = Sense_vals.split() #split it into elements in a list, based on space " "
                 #format for sensor vals: ["<TYPE>", "val1", "val2", ...]
@@ -154,9 +166,9 @@ class Robot():
                     
                     #This part separates the different values into their respective directions, maybe can be optimised if use list?
                     EchoReadings = {}
-                    EchoReadings["FRONT"] = [int(i) for i in Sense_vals[1:5]]
-                    EchoReadings["RIGHT"] = [int(i) for i in Sense_vals[5:7]]
-                    EchoReadings["LEFT"] = [int(i) for i in Sense_vals[7:9]]
+                    EchoReadings["FRONT"] = [int(i) for i in Sense_vals[1:3]] #1:5
+                    EchoReadings["RIGHT"] = [int(i) for i in Sense_vals[3:4]] #5:7
+                    EchoReadings["LEFT"] = [int(i) for i in Sense_vals[4:5]] #7:9
                     
                     for dir in ["FRONT", "RIGHT", "LEFT"]:
                         if len(self.EchoHist[dir]) == 0: #if there are no records of previous readings
@@ -204,7 +216,7 @@ class Robot():
             2. self.Delta
             """
             while self.AMove.in_waiting > 0: #while there's stuff in the buffer to be read
-                Move_vals = arduino.readline().decode() #read the string
+                Move_vals = self.AMove.readline().decode() #read the string
                 Move_vals = Move_vals[:-1] #take away the \n at the back
                 Move_vals = Move_vals.split() #split it into elements in a list, based on space " "
                 if Move_vals[0] == "MOVE_COMPLETE":
@@ -237,7 +249,7 @@ class Robot():
                         self.rotate = True #remember to set it at false when executing the initial turn
                 
                 elif Move_vals[0] == "STEPS":
-                    grids = Move_vals[1]/1435 #grids is a temporary local variable cause I don't feel like typing the entire thing
+                    grids = int(Move_vals[1])/1435 #grids is a temporary local variable cause I don't feel like typing the entire thing
                     #one grid is one "pixel" of 5cm on the map
                     if self.state == "FRONT" or self.pstate == "FRONT": #if current action update or stopped update
                         if self.dir == "N":
@@ -285,7 +297,7 @@ class Robot():
         #PUMP usually don't send anything over this is just here for fun
         elif arduino == "PUMP":
             while self.APump.in_waiting > 0: #while there's stuff in the buffer to be read
-                Pump_vals = arduino.readline().decode() #read the string
+                Pump_vals = self.APump.readline().decode() #read the string
                 Pump_vals = Pump_vals[:-1] #take away the \n at the back
                 Pump_vals = Pump_vals.split() #split it into elements in a list, based on space " "
     
@@ -299,21 +311,23 @@ class Robot():
         """
         self.read("SENSOR")
         self.read("MOVE")
-        if self.B2 == False:
-            self.stopall()
+        # print("B2:", self.B2)
+        # if self.B2 == False:
+        #     self.stopall()
+
         #to get the theoretical location we need to ascertain how many steps were moved
         
         #This one updates the obstacles and free spaces
         #This one updates the position according to any new movements
-        self.Nmap.DeltaPos(round(self.Delta), round(self.dir))
+        # self.Nmap.DeltaPos([int(i) for i in self.Delta], self.dir)
         
-        for dir in ["FRONT", "LEFT", "RIGHT"]:
-            self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
-            if self.Echo[dir] < 50:
-                self.Nmap.placeob_rel(dir, math.ceil(self.Echo[dir]/5)) #so anything obstacle override blank rather than vice versa
-        if self.Bump == "BUMP":
-            self.Nmap.placeob_rel("FRONT", 1)
-            self.stop()
+        # for dir in ["FRONT", "LEFT", "RIGHT"]:
+        #     self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
+        #     if self.Echo[dir] < 50:
+        #         self.Nmap.placeob_rel(dir, math.ceil(self.Echo[dir]/5)) #so anything obstacle override blank rather than vice versa
+        # if self.Bump == "BUMP":
+        #     self.Nmap.placeob_rel("FRONT", 1)
+        #     self.stop()
 
         
 
