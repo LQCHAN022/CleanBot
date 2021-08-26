@@ -7,8 +7,8 @@ import mapping
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import numpy as np
-import queue
-import tcod
+#import queue
+#import tcod
 # from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
