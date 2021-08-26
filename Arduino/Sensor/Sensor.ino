@@ -140,6 +140,7 @@ void setup() {
   //Serial setup
   Serial.begin(9600); // // Serial Communication is starting with 9600 of baudrate speed
   Serial.println("SENSOR");
+  delay(10);
   
 }
 void loop() {

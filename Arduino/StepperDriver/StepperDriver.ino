@@ -328,13 +328,16 @@ void loop() {
   }
 
   if (runFlag == 1) {   //if run command was sent
-    if (steps++ >= 1435){ //update step every step and send over ever 1435 steps, equivalent to 5 cm
-      Serial.print("STEPS "); Serial.println(steps);
-      steps = 0;
-    }
+//    if (steps >= 1435){ //update step every step and send over ever 1435 steps, equivalent to 5 cm
+//      Serial.print("STEPS "); Serial.println(steps);
+//      steps = 0;
+//    }
+      if (stepper1.currentPosition() % 5000 == 0){
+        Serial.print("Stepper1 Pos: "); Serial.println(stepper1.currentPosition());
+      }
     switch(valC){
       case 1: //for front
-        
+        steps++;
         stepper1.runSpeed();
         stepper2.runSpeed();
         stepper3.runSpeed();
@@ -343,6 +346,7 @@ void loop() {
         break;
         
       case 11: //front continuous there's some issue here that makes it run slow; nah no issue alr it's a hardware limitation thing
+        steps++;
         stepper1.runSpeed();
         stepper2.runSpeed();
         stepper3.runSpeed();
@@ -351,6 +355,7 @@ void loop() {
         break;
         
       case 2: //for back       
+        steps++;
         stepper1.runSpeed();
         stepper2.runSpeed();
         stepper3.runSpeed();
@@ -359,6 +364,7 @@ void loop() {
         break;
         
       case 3:
+        steps++;
         stepper1.setSpeed(spd);
         stepper2.setSpeed(spd);
         stepper3.setSpeed(spd);
@@ -376,6 +382,7 @@ void loop() {
         target = stepper2.distanceToGo();
         break;
       case 999:
+        steps++;
         stepper1.setAcceleration(1000);
         stepper2.setAcceleration(1000);
         stepper3.setAcceleration(1000);
@@ -391,7 +398,7 @@ void loop() {
 
     if (target == 0) {   //if the stepper has reached destination
       runFlag = 0;                              //turn off run flag
-      Serial.print("STEPS "); Serial.println(steps);
+//      Serial.print("STEPS "); Serial.println(steps);
       steps = 0; 
       Serial.println("MOVE_COMPLETE");
       }
