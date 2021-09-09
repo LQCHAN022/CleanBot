@@ -1,0 +1,72 @@
+//arduinoSensor
+//This arduino is used to connect with all the sensors including:
+1. Echo sensors (8)
+2. MPU-6050 Accelerometer/Gyroscope
+3. Limit switches (2)
+4. Buttons
+5. CJMCU-3901 Optical Flow Sensor
+
+Connection on Arduino:
+
+//ECHO
+#define echoPin1 2 //pins for sensors 1-4
+#define trigPin1 3
+#define echoPin2 4 
+#define trigPin2 5 
+#define echoPin3 6 
+#define trigPin3 7 
+#define echoPin4 8 
+#define trigPin4 9
+
+#define echoPin5 54 (A0-A7)//pins for sensors 5-8 
+#define trigPin5 55 
+#define echoPin6 56
+#define trigPin6 57 
+#define echoPin7 58 
+#define trigPin7 59 
+#define echoPin8 60 
+#define trigPin8 61   
+
+VCC > 5V
+GND > GND
+
+//ACCEL
+SCL > SCL
+SDA > SDA
+VCC > 5V
+GND > GND
+
+
+//Limit Switches
+SIG1 > 68 (A14)
+SIG2 > 69 (A15)
+VCC > 5V
+GND > GND
+
+//Buttons
+B1 > 62
+B2 > 63
+GND > GND
+
+//Optical Flow Sensor
+CS > 22
+MISO > 50
+MOSI > 51
+SCK > 52
+
+VCC > 3.3V
+GND > GND
+
+
+
+//arduinoMove
+//This arduino is used to connect with all the stepper motors:
+1. Stepper Motors for movement (Steppers1-4)
+x, y, z, e1
+
+2. Stepper Motor for rotation of cloth roller (Stepper5)
+e2
+//arduinoPump
+//This arduino is used to connect to a MOSFET, which in turns control the water pump
+PWM > 6
+GND > GND

@@ -72,7 +72,7 @@ int lastButtonState2 = 1;
 int limitState1 = 0;
 int lastLimitState1 = 0;
 
-//Not implemented yet
+
 #define limitPin2 69
 int limitState2 = 0;
 int lastLimitState2 = 0;
@@ -107,6 +107,18 @@ void setup() {
   
   pinMode(trigPin4, OUTPUT); 
   pinMode(echoPin4, INPUT); 
+
+  pinMode(trigPin5, OUTPUT); 
+  pinMode(echoPin5, INPUT); 
+  
+  pinMode(trigPin6, OUTPUT); 
+  pinMode(echoPin6, INPUT); 
+  
+  pinMode(trigPin7, OUTPUT); 
+  pinMode(echoPin7, INPUT); 
+  
+  pinMode(trigPin8, OUTPUT); 
+  pinMode(echoPin8, INPUT); 
   
   //------------------------------------------------------------------//
 
@@ -126,6 +138,7 @@ void setup() {
 
   //Limit switches setup
   pinMode(limitPin1, INPUT);
+  pinMode(limitPin2, INPUT);
   
   //------------------------------------------------------------------//
 
@@ -145,9 +158,9 @@ void setup() {
 }
 void loop() {
   echoreading();
-//  limitdetect();
+  limitdetect();
 //  accelreading();
-//  buttondetect();
+  buttondetect();
 //  opticalreading();
 
 
@@ -206,8 +219,51 @@ void echoreading(){
   digitalWrite(trigPin4, LOW);
   duration4 = pulseIn(echoPin4, HIGH);
   distance4 = duration4 * 0.034 / 2; 
-  Serial.print("ECHO ");Serial.print(distance1);Serial.print(" ");Serial.print(distance2);Serial.print(" ");Serial.print(distance3);Serial.print(" ");Serial.println(distance4);
-//  delay(10);
+  delay(10);
+  
+
+  digitalWrite(trigPin5, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin5, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin5, LOW);
+  duration5 = pulseIn(echoPin5, HIGH);
+  distance5 = duration5 * 0.034 / 2;
+  delay(10);  
+
+  digitalWrite(trigPin6, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin6, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin6, LOW);
+  duration6 = pulseIn(echoPin6, HIGH);
+  distance6 = duration6 * 0.034 / 2;
+  delay(10);  
+
+
+  digitalWrite(trigPin7, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin7, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin7, LOW);
+  duration7 = pulseIn(echoPin7, HIGH);
+  distance7 = duration7 * 0.034 / 2;
+  delay(10);  
+
+
+  digitalWrite(trigPin8, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin8, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin8, LOW);
+  duration8 = pulseIn(echoPin8, HIGH);
+  distance8 = duration8 * 0.034 / 2;
+  delay(10);  
+
+  
+  Serial.print("ECHO ");Serial.print(distance1);Serial.print(" ");Serial.print(distance2);Serial.print(" ");Serial.print(distance3);Serial.print(" ");Serial.print(distance4);
+  Serial.print(" ");Serial.print(distance5);Serial.print(" ");Serial.print(distance6);Serial.print(" ");Serial.print(distance7);Serial.print(" ");Serial.println(distance8);
+
 
 
 }

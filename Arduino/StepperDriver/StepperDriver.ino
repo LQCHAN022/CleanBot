@@ -46,7 +46,7 @@ int startTime;    //for calc speed
 int spd = 2870; //number of steps per revolution
 char* dir;
 long dist;
-int steps; //this is to keep track of the number of steps and update it over to the RPI
+long steps; //this is to keep track of the number of steps and update it over to the RPI
 
 void setup() {
   pinMode(xen, OUTPUT); //enabling the motors
@@ -259,6 +259,7 @@ void loop() {
     else if (strcmp(dir, "S") == 0) {   //if recieved S then stop
       runFlag = 0;
       Serial.println("STOPPED");
+      Serial.print("STEPS "); Serial.println(stepper1.currentPosition());
     }
     
     else if (strcmp(dir, "I") == 0) {   //if recieved I then show current positions
@@ -332,8 +333,8 @@ void loop() {
 //      Serial.print("STEPS "); Serial.println(steps);
 //      steps = 0;
 //    }
-      if (stepper1.currentPosition() % 5000 == 0){
-        Serial.print("Stepper1 Pos: "); Serial.println(stepper1.currentPosition());
+      if (stepper1.currentPosition() % 1435 == 0){
+        Serial.print("STEPS "); Serial.println(stepper1.currentPosition());
       }
     switch(valC){
       case 1: //for front
@@ -401,6 +402,7 @@ void loop() {
 //      Serial.print("STEPS "); Serial.println(steps);
       steps = 0; 
       Serial.println("MOVE_COMPLETE");
+      Serial.print("STEPS "); Serial.println(stepper1.currentPosition());
       }
   }
 }
