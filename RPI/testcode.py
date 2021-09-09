@@ -84,7 +84,11 @@ robot = Robot(arduinoSensor, arduinoMove, arduinoPump)
 
 valid = True
 while valid:
-    choice = int(input("What do test: \n 1. Sensor \n 2. Movement"))
+    choice = int(input("What do test: \n \
+    1. Sensor \n \
+    2. Movement \n \
+    3. Movement and Delta/Step test \n \
+    4. Movement and Echo test \n"))
     if choice == 1:
         """
                 Updates the following attributes:
@@ -103,6 +107,7 @@ while valid:
         print("Bump:", robot.Bump)
         print("B1:", robot.B1)
         print("B2:", robot.B2)
+        print("Nmap Echo", robot.Nmap.checksurr())
     elif choice == 2:
         cmd = input("Input dir<space>dist").split()
         cmd = [int(i) for i in cmd]
@@ -114,3 +119,21 @@ while valid:
             print("Delta:", robot.Delta, "\n")
             # print("Step Count:", robot.step_count, "\n")
             time.sleep(0.1)
+    elif choice == 3:
+        for _ in range(3):
+            robot.move(0, -1)
+            while(robot.state != "STOP"):
+                robot.scan()
+                if robot.Delta[0] >= 1:
+                    robot.stop()
+            robot.move(180, -1)
+            while(robot.state != "STOP"):
+                robot.scan()
+                if robot.Delta[0] <= -1:
+                    robot.stop()
+    # elif choice == 4:
+    #     for _ in range(3):
+    #         robot.move(0, -1)
+    #         while(robot.state != "STOP"):
+    #             robot.scan()
+    #             if robot.Echo

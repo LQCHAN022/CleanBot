@@ -185,6 +185,7 @@ class Robot():
                                     # print(StableVals, dir)
                             if len(StableVals) != 0: #somehow or another bugged sometimes so yeah this is here in case
                                 self.Echo[dir] = min(StableVals) #minimum of the stable values
+                            self.EchoHist[dir] = EchoReadings[dir]
 
                             
                             
@@ -228,7 +229,7 @@ class Robot():
                 Move_vals = self.AMove.readline().decode() #read the string
                 Move_vals = Move_vals[:-1] #take away the \n at the back
                 Move_vals = Move_vals.split() #split it into elements in a list, based on space " "
-                print("Move read:", Move_vals)
+                # print("Move read:", Move_vals)
                 if Move_vals[0] == "MOVE_COMPLETE":
                     #this part takes note of the rotation such that it updates the direction when the rotation is finished
                     #doesn't do anything when movement front and reverse stops
@@ -261,10 +262,10 @@ class Robot():
                 elif Move_vals[0] == "STEPS":
                     #grids is a temporary local variable cause I don't feel like typing the entire thing
                     #one grid is one "pixel" of 5cm on the map
-                    print("Current Steps:", Move_vals[1])
-                    print("Previous Steps:", self.step_count)
+                    # print("Current Steps:", Move_vals[1])
+                    # print("Previous Steps:", self.step_count)
                     grids = abs((int(Move_vals[1]) - self.step_count)/1435)
-                    print("Grids:", grids)
+                    # print("Grids:", grids)
                     self.step_count = int(Move_vals[1])
                     if self.state == "FRONT" or self.pstate == "FRONT": #if current action update or stopped update
                         if self.dir == "N":
@@ -336,13 +337,13 @@ class Robot():
         #This one updates the position according to any new movements
         # self.Nmap.DeltaPos([int(i) for i in self.Delta], self.dir)
         
-        # for dir in ["FRONT", "LEFT", "RIGHT"]:
-        #     self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
-        #     if self.Echo[dir] < 50:
-        #         self.Nmap.placeob_rel(dir, math.ceil(self.Echo[dir]/5)) #so anything obstacle override blank rather than vice versa
-        # if self.Bump == "BUMP":
-        #     self.Nmap.placeob_rel("FRONT", 1)
-        #     self.stop()
+        for dir in ["FRONT", "LEFT", "RIGHT"]:
+            self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
+            if self.Echo[dir] < 50:
+                self.Nmap.placeob_rel(dir, math.ceil(self.Echo[dir]/5)) #so anything obstacle override blank rather than vice versa
+        if self.Bump == "BUMP":
+            self.Nmap.placeob_rel("FRONT", 1)
+            self.stop()
 
         
 
