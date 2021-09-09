@@ -13,6 +13,7 @@ class Robot():
         self.Delta = [0, 0] #will be in the row and col format, not x and y, this will be the coordinate of the robot in the most accurate sense, since that of Nmap only supports integer values
                             #Delta be true delta instead of compensated delta?(like in mapping since origin for that is fixed and moving)
                             #There has to be attribute in mapping to take care of the deformation called self.deform
+        self.step_count = 0 #this stored that last value of the stepper steps
 
         #These are the different Arduinos
         self.ASense = arduinoSensor
@@ -57,7 +58,7 @@ class Robot():
         # self.stop() #failsafe
         # if not self.B2:
         #     return
-        time.sleep(0.5)
+        time.sleep(0.1)
         print("Move passed with", dir, dist)
         if dir == 0:
             self.AMove.write("FRONT {}\n".format(dist).encode())
@@ -65,7 +66,7 @@ class Robot():
         elif dir == 180:
             self.AMove.write("BACK {}\n".format(dist).encode())
             self.newstate("BACK")
-        else:
+        else: #allows to negatve angles so the speak
             if dist < 0:
                 dir = 90 if dir == 270 else 270
                 dist = -dist
@@ -160,27 +161,31 @@ class Robot():
                     
                     Which reading corresponds to which direction
                     FRONT: 1, 2, 3, 4
-                    RIGHT: 5, 6
-                    LEFT: 7, 8
+                    LEFT: 5, 6
+                    RIGHT: 7, 8
                     """
                     
                     #This part separates the different values into their respective directions, maybe can be optimised if use list?
                     EchoReadings = {}
-                    EchoReadings["FRONT"] = [int(i) for i in Sense_vals[1:3]] #1:5
-                    EchoReadings["RIGHT"] = [int(i) for i in Sense_vals[3:4]] #5:7
-                    EchoReadings["LEFT"] = [int(i) for i in Sense_vals[4:5]] #7:9
+                    EchoReadings["FRONT"] = [int(i) for i in Sense_vals[1:5]] 
+                    EchoReadings["LEFT"] = [int(i) for i in Sense_vals[5:7]] 
+                    EchoReadings["RIGHT"] = [int(i) for i in Sense_vals[7:9]] 
+                    # print(EchoReadings)
                     
                     for dir in ["FRONT", "RIGHT", "LEFT"]:
                         if len(self.EchoHist[dir]) == 0: #if there are no records of previous readings
+                            # print("Initial")
                             self.EchoHist[dir] = EchoReadings[dir] #update the history with the current readings
                             self.Echo[dir] = min(EchoReadings[dir]) #update the attributes with the lowest of current value
-                            break
                         else:
                             StableVals = []
                             for i in range(len(EchoReadings[dir])): #checking the each of the readings of each direction
                                 if abs(EchoReadings[dir][i] - self.EchoHist[dir][i]) < 20: #if it varies from the previous by less than 20
                                     StableVals.append(EchoReadings[dir][i]) #list of stable values for this direction contains...
-                            self.Echo[dir] = min(StableVals) #minimum of the stable values
+                                    # print(StableVals, dir)
+                            if len(StableVals) != 0: #somehow or another bugged sometimes so yeah this is here in case
+                                self.Echo[dir] = min(StableVals) #minimum of the stable values
+
                             
                             
                 elif Sense_vals[0] == "ACCEL":
@@ -197,13 +202,17 @@ class Robot():
                     self.Bump = Sense_vals[0]
                     
 
-                elif Sense_vals[0] == "B1" or Sense_vals[0] == "B2":
+                elif Sense_vals[0] == "B1":
                     """
-                    Basically toggles the Boolean value of these two attributes    
+                    Basically toggles the Boolean value   
                     """
                     self.B1 = True if self.B1 == False else False
+                
+                elif Sense_vals[0] == "B2":
+                    """
+                    Basically toggles the Boolean value 
+                    """
                     self.B2 = True if self.B2 == False else False
-                    
 
                 elif Sense_vals[0] == "OPTICAL":
                     pass
@@ -219,6 +228,7 @@ class Robot():
                 Move_vals = self.AMove.readline().decode() #read the string
                 Move_vals = Move_vals[:-1] #take away the \n at the back
                 Move_vals = Move_vals.split() #split it into elements in a list, based on space " "
+                print("Move read:", Move_vals)
                 if Move_vals[0] == "MOVE_COMPLETE":
                     #this part takes note of the rotation such that it updates the direction when the rotation is finished
                     #doesn't do anything when movement front and reverse stops
@@ -249,23 +259,28 @@ class Robot():
                         self.rotate = True #remember to set it at false when executing the initial turn
                 
                 elif Move_vals[0] == "STEPS":
-                    grids = int(Move_vals[1])/1435 #grids is a temporary local variable cause I don't feel like typing the entire thing
+                    #grids is a temporary local variable cause I don't feel like typing the entire thing
                     #one grid is one "pixel" of 5cm on the map
+                    print("Current Steps:", Move_vals[1])
+                    print("Previous Steps:", self.step_count)
+                    grids = abs((int(Move_vals[1]) - self.step_count)/1435)
+                    print("Grids:", grids)
+                    self.step_count = int(Move_vals[1])
                     if self.state == "FRONT" or self.pstate == "FRONT": #if current action update or stopped update
                         if self.dir == "N":
-                            self.Delta[0] -= grids
-                        elif self.dir == "S":
                             self.Delta[0] += grids
+                        elif self.dir == "S":
+                            self.Delta[0] -= grids
                         elif self.dir == "E":
                             self.Delta[1] += grids
                         elif self.dir == "W":
                             self.Delta[1] -= grids
 
-                    elif self.state == "BACK":
+                    elif self.state == "BACK" or self.pstate == "BACK":
                         if self.dir == "N":
-                            self.Delta[0] += grids
-                        elif self.dir == "S":
                             self.Delta[0] -= grids
+                        elif self.dir == "S":
+                            self.Delta[0] += grids
                         elif self.dir == "E":
                             self.Delta[1] -= grids
                         elif self.dir == "W":

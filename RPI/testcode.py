@@ -48,7 +48,7 @@ while missingArduino:
                             answer = answer[:-1] #remove the newline behind
                             answer = answer.split()
                             print(answer)
-                            print(port)
+                            # print(port)
                             if answer[0] == "SENSOR": #assigns the connected arduino to it's correct name
                                 checkdone = True
                                 arduinoSensor = arduino1
@@ -81,8 +81,36 @@ while missingArduino:
 
 robot = Robot(arduinoSensor, arduinoMove, arduinoPump)
 
-robot.move(0, -1)
-time.sleep(1)
-robot.cleanon()
-time.sleep(5)
-robot.stopall()
+
+valid = True
+while valid:
+    choice = int(input("What do test: \n 1. Sensor \n 2. Movement"))
+    if choice == 1:
+        """
+                Updates the following attributes:
+                1. self.Echo
+                2. self.EchoHist
+                3. self.Accel
+                4. self.Bump
+                5. self.B1
+                6. self.B2
+                7. self.(Optical stuff, not yet)
+                """
+        robot.read("SENSOR")
+        print("Echo:", robot.Echo)
+        print("Echo Hist:", robot.EchoHist)
+        print("Accel:", robot.Accel)
+        print("Bump:", robot.Bump)
+        print("B1:", robot.B1)
+        print("B2:", robot.B2)
+    elif choice == 2:
+        cmd = input("Input dir<space>dist").split()
+        cmd = [int(i) for i in cmd]
+        robot.move(*cmd) #code does not pause here
+        for _ in range(30):
+            robot.read("MOVE")
+            print("Dir:", robot.dir)
+            print("State:", robot.state)
+            print("Delta:", robot.Delta, "\n")
+            # print("Step Count:", robot.step_count, "\n")
+            time.sleep(0.1)
