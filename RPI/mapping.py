@@ -93,7 +93,7 @@ class Map:
         #note that sw and ne are lists containing coordinates
         for row in range(nw[0], se[0]+1):
             for col in range(nw[1], se[1]+1):
-                self.current[row, col] = 2
+                self.current[row, col] = 0
 
     def placeob_rel(self, dir, dist):
         """
@@ -618,7 +618,7 @@ class Map:
 
     def pfindmap(self, start, end): #returns the sacred set of instructions to yeet back home
         dupmap = self.current.copy()
-        dupmap[dupmap == 10] = 2
+        dupmap[dupmap == 10] = 2 #replaces the current pos no.s with cleaned to not mess with the algorithm
         dupmap[dupmap == 11] = 2
         dupmap[self.pos[0], self.pos[1]] = 10
         return pathfind.pfind(pathfind.thicc(dupmap, 2), start, end) #[row, col] form for start and end

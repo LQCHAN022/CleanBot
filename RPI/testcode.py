@@ -63,6 +63,8 @@ while missingArduino:
                                 checkdone = True
                                 arduinoPump = arduino1
                                 print("PUMP found")
+                            else:
+                                print("Found this instead:", answer[0])
                             connected = False
                             time.sleep(0.01)
                         except:
@@ -88,7 +90,8 @@ while valid:
     1. Sensor \n \
     2. Movement \n \
     3. Movement and Delta/Step test \n \
-    4. Movement and Echo test \n"))
+    4. Echo calibration \n\
+    5. Clean testing \n    "))
     if choice == 1:
         """
                 Updates the following attributes:
@@ -100,13 +103,17 @@ while valid:
                 6. self.B2
                 7. self.(Optical stuff, not yet)
                 """
-        robot.read("SENSOR")
+        # robot.read("SENSOR")
+        robot.scan()
         print("Echo:", robot.Echo)
         print("Echo Hist:", robot.EchoHist)
         print("Accel:", robot.Accel)
         print("Bump:", robot.Bump)
         print("B1:", robot.B1)
         print("B2:", robot.B2)
+        for row in robot.Nmap.current:
+            print(row[15:36])
+        # print("Nmap:", robot.Nmap.current)
         print("Nmap Echo", robot.Nmap.checksurr())
     elif choice == 2:
         cmd = input("Input dir<space>dist").split()
@@ -131,6 +138,27 @@ while valid:
                 robot.scan()
                 if robot.Delta[0] <= -1:
                     robot.stop()
+    elif choice == 4:
+        loop = int(input("How many times to loop"))
+        for _ in range(loop):
+            robot.scan()
+            print("Raw echo", robot.Echo)
+            print("Nmap Echo", robot.Nmap.checksurr())
+            time.sleep(0.25)
+
+    elif choice == 5:
+        valid = True
+        while valid:
+            loop = int(input("1. on, 2. off, 3. exit"))
+            if loop == 1:
+                robot.cleanon()
+            elif loop == 2:
+                robot.cleanoff()
+            else:
+                valid = False
+
+
+
     # elif choice == 4:
     #     for _ in range(3):
     #         robot.move(0, -1)
