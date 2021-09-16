@@ -43,6 +43,7 @@ while missingArduino:
             if arduino1.isOpen(): #this loop only starts after the we found a port
                 while not checkdone: #keeps checking for input until we have the desired ID phrase
                     while arduino1.in_waiting>0: #while there is stuff wating to be received in this "check"
+                        print("Something to be printed")
                         try: 
                             answer = arduino1.readline().decode()
                             answer = answer[:-1] #remove the newline behind
@@ -112,20 +113,21 @@ while valid:
         print("B1:", robot.B1)
         print("B2:", robot.B2)
         for row in robot.Nmap.current:
-            print(row[15:36])
-        # print("Nmap:", robot.Nmap.current)
+            print(row[10:41])
+        print("Nmap:", robot.Nmap.current)
         print("Nmap Echo", robot.Nmap.checksurr())
     elif choice == 2:
         cmd = input("Input dir<space>dist").split()
         cmd = [int(i) for i in cmd]
         robot.move(*cmd) #code does not pause here
         for _ in range(30):
+            time.sleep(0.1)
             robot.read("MOVE")
             print("Dir:", robot.dir)
             print("State:", robot.state)
             print("Delta:", robot.Delta, "\n")
             # print("Step Count:", robot.step_count, "\n")
-            time.sleep(0.1)
+            # time.sleep(0.1)
     elif choice == 3:
         for _ in range(3):
             robot.move(0, -1)
@@ -142,9 +144,10 @@ while valid:
         loop = int(input("How many times to loop"))
         for _ in range(loop):
             robot.scan()
-            print("Raw echo", robot.Echo)
-            print("Nmap Echo", robot.Nmap.checksurr())
-            time.sleep(0.25)
+            print("Echo Hist", robot.EchoHist)
+            # print("Raw echo", robot.Echo)
+            # print("Nmap Echo", robot.Nmap.checksurr())
+            time.sleep(0.2)
 
     elif choice == 5:
         valid = True

@@ -21,7 +21,7 @@ class Robot():
         self.APump = arduinoPump
         
         #map initialisation will be done here
-        self.Nmap = Map(10, [3, 5]) #[9, 15]
+        self.Nmap = Map(20, [9, 15]) #[9, 15]
         self.Nmap.setpos(0, 0, "N")
         self.Nmap.sethome(0, 0, "N")
         self.Nmap.expandcheck()
