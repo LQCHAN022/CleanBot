@@ -159,7 +159,7 @@ void setup() {
 void loop() {
   echoreading();
   limitdetect();
-//  accelreading();
+  accelreading();
   buttondetect();
 //  opticalreading();
 
