@@ -6,6 +6,7 @@ import serial,time
 from mapping import Map
 from serial.serialutil import SerialException
 from Robot import Robot
+import numpy as np
 
 """
 This part is to check which arduino is which by checking through all the ports
@@ -84,7 +85,7 @@ while missingArduino:
 
 robot = Robot(arduinoSensor, arduinoMove, arduinoPump)
 
-
+np.set_printoptions(threshold=np.inf)
 valid = True
 while valid:
     choice = int(input("What do test: \n \
@@ -106,16 +107,19 @@ while valid:
                 """
         # robot.read("SENSOR")
         robot.scan()
+        for row in robot.Nmap.current:
+            print(row[15:-34])
+        print("Size of map now is row/col:", len(robot.Nmap.current), ",", len(robot.Nmap.current[0]))
         print("Echo:", robot.Echo)
         print("Echo Hist:", robot.EchoHist)
         print("Accel:", robot.Accel)
         print("Bump:", robot.Bump)
         print("B1:", robot.B1)
         print("B2:", robot.B2)
-        for row in robot.Nmap.current:
-            print(row[10:41])
-        print("Nmap:", robot.Nmap.current)
+        print("Pos:", robot.Nmap.pos)
+        # print("Nmap:\n", robot.Nmap.current)
         print("Nmap Echo", robot.Nmap.checksurr())
+        # robot.Nmap.showcurrent(1)
     elif choice == 2:
         cmd = input("Input dir<space>dist").split()
         cmd = [int(i) for i in cmd]

@@ -36,9 +36,13 @@ class Map:
 
 
 
-    def setpos(self, y, x, dir): #sets position by coordinates and direction
-        self.current[self.current == 10] = 2 #sets all 1 and 9 to 0 to clear old position
-        self.current[self.current == 11] = 2
+    def setpos(self, y, x, dir, clean=True): #sets position by coordinates and direction
+        if clean:
+            self.current[self.current == 10] = 2 #sets all 1 and 9 to 0 to clear old position
+            self.current[self.current == 11] = 2
+        else: #this one is only for expandmap
+            self.current[self.current == 10] = 1 #sets all 1 and 9 to 0 to clear old position
+            self.current[self.current == 11] = 1
         self.current[y, x] == 10 #sets pivot. actually redundant code but take note of rol/col vs x/y
         self.dir = dir
         if dir == "N" or dir == "S":
@@ -74,15 +78,17 @@ class Map:
     def DeltaPos(self, Delta, dir):
         """
         Takes the true coordinates delta from robot class and modifies it to display on the map
+        deform is for the expand offset due to expand()
         """
         self.setpos(Delta[0] + self.deform[0], Delta[1] + self.deform[1], dir)
     
-    def updatepos(self): 
+    def updatepos(self, clean=True): 
         """
         #pushes the changes to attributes to the map/self.current
+        The clean parameter dictates if the previous position is update to clean or not
         
         """
-        self.setpos(*self.pos, self.dir)
+        self.setpos(*self.pos, self.dir, clean)
 
 
     def placeob(self, nw, se): 
@@ -294,6 +300,7 @@ class Map:
     def expandcheck(self):
         """
         Purpose of this is to check if there's a minimum clearance between the robot and the edge of the map, if there isn't expand
+        1 unit = 5 cm, 20 grids = 1m
         """
         
         edge_y = self.rows - self.pos[0] - self.length #distance between robot and South edge
@@ -403,11 +410,11 @@ class Map:
                             obsdir.append(["BACK", self.pos[0] - self.length//2 - row])
                     
                     #This is mainly for wall hug, checking if cleaned
-                    elif self.current[row, col] == 2: #North check
-                            if self.dir == "N":
-                                obsdir.append(["FRONTC", self.pos[0] - self.length//2 - row]) #self.pos[1] - self.length//2 - col is the distance from the north edge to the assessed block
-                            elif self.dir == "S":
-                                obsdir.append(["BACKC", self.pos[0] - self.length//2 - row])
+                    # elif self.current[row, col] == 2: #North check
+                    #         if self.dir == "N":
+                    #             obsdir.append(["FRONTC", self.pos[0] - self.length//2 - row]) #self.pos[1] - self.length//2 - col is the distance from the north edge to the assessed block
+                    #         elif self.dir == "S":
+                    #             obsdir.append(["BACKC", self.pos[0] - self.length//2 - row])
                 #     print("NORTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -420,11 +427,11 @@ class Map:
                         elif self.dir == "S": 
                             obsdir.append(["FRONT", row - self.pos[0] - self.length//2])
                     
-                    elif self.current[row, col] == 2: #South check
-                        if self.dir == "N": 
-                            obsdir.append(["BACKC", row - self.pos[0] - self.length//2]) #col - self.pos[1] - self.length//2] is the distance from the south edge to the assessed block
-                        elif self.dir == "S": 
-                            obsdir.append(["FRONTC", row - self.pos[0] - self.length//2])
+                    # elif self.current[row, col] == 2: #South check
+                    #     if self.dir == "N": 
+                    #         obsdir.append(["BACKC", row - self.pos[0] - self.length//2]) #col - self.pos[1] - self.length//2] is the distance from the south edge to the assessed block
+                    #     elif self.dir == "S": 
+                    #         obsdir.append(["FRONTC", row - self.pos[0] - self.length//2])
                 #     print("SOUTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -439,11 +446,11 @@ class Map:
                         elif self.dir == "S":
                             obsdir.append(["RIGHT", self.pos[1] - self.width//2 - col])
                     
-                    elif self.current[row, col] == 2:
-                        if self.dir == "N":
-                            obsdir.append(["LEFTC", self.pos[1] - self.width//2 - col]) #self.pos[1] - self.width//2 - col refers to the dist between the west edge and the robot
-                        elif self.dir == "S":
-                            obsdir.append(["RIGHTC", self.pos[1] - self.width//2 - col])
+                    # elif self.current[row, col] == 2:
+                    #     if self.dir == "N":
+                    #         obsdir.append(["LEFTC", self.pos[1] - self.width//2 - col]) #self.pos[1] - self.width//2 - col refers to the dist between the west edge and the robot
+                    #     elif self.dir == "S":
+                    #         obsdir.append(["RIGHTC", self.pos[1] - self.width//2 - col])
                     # print("WEST", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -456,11 +463,11 @@ class Map:
                         elif self.dir == "S":
                             obsdir.append(["LEFT", col - self.pos[1] - self.width//2])
                     
-                    elif self.current[row, col] == 2:
-                        if self.dir == "N":
-                            obsdir.append(["RIGHTC", col - self.pos[1] - self.width//2])
-                        elif self.dir == "S":
-                            obsdir.append(["LEFTC", col - self.pos[1] - self.width//2])
+                    # elif self.current[row, col] == 2:
+                    #     if self.dir == "N":
+                    #         obsdir.append(["RIGHTC", col - self.pos[1] - self.width//2])
+                    #     elif self.dir == "S":
+                    #         obsdir.append(["LEFTC", col - self.pos[1] - self.width//2])
                     # print("EAST", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -478,11 +485,11 @@ class Map:
                         elif self.dir == "W": 
                             obsdir.append(["RIGHT", self.pos[0] - self.width//2 - row])
                     
-                    elif self.current[row, col] == 2: #North check
-                        if self.dir == "E":
-                            obsdir.append(["LEFTC", self.pos[0] - self.width//2 - row])
-                        elif self.dir == "W": 
-                            obsdir.append(["RIGHTC", self.pos[0] - self.width//2 - row])
+                    # elif self.current[row, col] == 2: #North check
+                    #     if self.dir == "E":
+                    #         obsdir.append(["LEFTC", self.pos[0] - self.width//2 - row])
+                    #     elif self.dir == "W": 
+                    #         obsdir.append(["RIGHTC", self.pos[0] - self.width//2 - row])
                 #     print("NORTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -495,11 +502,11 @@ class Map:
                         elif self.dir == "W": 
                             obsdir.append(["LEFT", row - self.pos[0] - self.width//2])
                     
-                    elif self.current[row, col] == 2: #South check
-                        if self.dir == "E":
-                            obsdir.append(["RIGHTC", row - self.pos[0] - self.width//2])
-                        elif self.dir == "W": 
-                            obsdir.append(["LEFTC", row - self.pos[0] - self.width//2])
+                    # elif self.current[row, col] == 2: #South check
+                    #     if self.dir == "E":
+                    #         obsdir.append(["RIGHTC", row - self.pos[0] - self.width//2])
+                    #     elif self.dir == "W": 
+                    #         obsdir.append(["LEFTC", row - self.pos[0] - self.width//2])
                 #     print("SOUTH", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -514,11 +521,11 @@ class Map:
                         elif self.dir == "W":
                             obsdir.append(["FRONT", self.pos[1] - self.length//2 - col])
                     
-                    elif self.current[row, col] == 2:
-                        if self.dir == "E":
-                            obsdir.append(["BACKC", self.pos[1] - self.length//2 - col])
-                        elif self.dir == "W":
-                            obsdir.append(["FRONTC", self.pos[1] - self.length//2 - col])
+                    # elif self.current[row, col] == 2:
+                    #     if self.dir == "E":
+                    #         obsdir.append(["BACKC", self.pos[1] - self.length//2 - col])
+                    #     elif self.dir == "W":
+                    #         obsdir.append(["FRONTC", self.pos[1] - self.length//2 - col])
                 #     print("WEST", row, col)
                 #     self.current[row, col] = 20
                 # print()
@@ -531,11 +538,11 @@ class Map:
                         elif self.dir == "W":
                             obsdir.append(["BACK", col - self.pos[1] - self.length//2])
                     
-                    elif self.current[row, col] == 2:
-                        if self.dir == "E":
-                            obsdir.append(["FRONTC", col - self.pos[1] - self.length//2])
-                        elif self.dir == "W":
-                            obsdir.append(["BACKC", col - self.pos[1] - self.length//2])
+                    # elif self.current[row, col] == 2:
+                    #     if self.dir == "E":
+                    #         obsdir.append(["FRONTC", col - self.pos[1] - self.length//2])
+                    #     elif self.dir == "W":
+                    #         obsdir.append(["BACKC", col - self.pos[1] - self.length//2])
                 #     print("EAST", row, col)
                 #     self.current[row, col] = 20
                 # print()

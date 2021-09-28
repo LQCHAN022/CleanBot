@@ -21,9 +21,9 @@ class Robot():
         self.APump = arduinoPump
         
         #map initialisation will be done here
-        self.Nmap = Map(20, [9, 15]) #[9, 15]
-        self.Nmap.setpos(0, 0, "N")
-        self.Nmap.sethome(0, 0, "N")
+        self.Nmap = Map(30, [9, 15]) #[9, 15]
+        self.Nmap.setpos(15, 15, "N")
+        self.Nmap.sethome(15, 15, "N")
         self.Nmap.expandcheck()
         self.setdir("N")
         
@@ -335,13 +335,14 @@ class Robot():
         
         #This one updates the obstacles and free spaces
         #This one updates the position according to any new movements
-        # self.Nmap.DeltaPos([int(i) for i in self.Delta], self.dir)
+        self.Nmap.DeltaPos([int(i) for i in self.Delta], self.dir)
         
+
         for dir in ["FRONT", "LEFT", "RIGHT"]:
             self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
-            if self.Echo[dir] < 50:
+            if self.Echo[dir] < 80: #this is in cm
                 self.Nmap.placeob_rel(dir, math.floor(self.Echo[dir]/5)) #so anything obstacle override blank rather than vice versa
-                # print("placed obs")
+                print("placed obs", dir, "grids:", math.floor(self.Echo[dir]/5))
         if self.Bump == "BUMP":
             self.Nmap.placeob_rel("FRONT", 1)
             self.stop()
