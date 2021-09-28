@@ -7,6 +7,7 @@ from mapping import Map
 from serial.serialutil import SerialException
 from Robot import Robot
 import numpy as np
+import keyboard
 
 """
 This part is to check which arduino is which by checking through all the ports
@@ -163,12 +164,43 @@ while valid:
                 robot.cleanoff()
             else:
                 valid = False
+    
+    elif choice == 6:
+        valid = True
+        while valid:
+            if(keyboard.is_pressed("w")):
+                print("w")
+                robot.move(0, -1)
+                while(keyboard.is_pressed("w")):
+                    pass
+                else:
+                    print("w released")
+                    robot.stop()
+            elif(keyboard.is_pressed("a")):
+                print("a")
+                robot.move(270)
+                while(keyboard.is_pressed("a")):
+                    pass
+                else:
+                    print("a released")
+                    robot.stop()
+            elif(keyboard.is_pressed("s")):
+                print("s")
+                robot.move(180, -1)
+                while(keyboard.is_pressed("s")):
+                    pass
+                else:
+                    print("s released")
+                    robot.stop()
+            elif(keyboard.is_pressed("d")):
+                print("d")
+                robot.move(90)
+                while(keyboard.is_pressed("d")):
+                    pass
+                else:
+                    print("d released")
+                    robot.stop()
+            elif(keyboard.is_pressed("r")):
+                robot.stop()
+                valid = False
 
-
-
-    # elif choice == 4:
-    #     for _ in range(3):
-    #         robot.move(0, -1)
-    #         while(robot.state != "STOP"):
-    #             robot.scan()
-    #             if robot.Echo
