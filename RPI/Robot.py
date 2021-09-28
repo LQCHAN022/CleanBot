@@ -81,13 +81,14 @@ class Robot():
                 self.newstate("QTURN")
                 # self.Accel["PZ"] = self.Accel["Z"]
         self.rotate = False
-        time.sleep(1)
+        time.sleep(0.1)
         self.AMove.write("R\n".encode())
         
         #set things to pause until rotation complete
         if dir == 90 or dir == 270:
             while not self.rotate:
                 self.scan()
+                print(self.Accel)
     
     def stop(self):
         """
@@ -337,15 +338,17 @@ class Robot():
         #This one updates the position according to any new movements
         self.Nmap.DeltaPos([int(i) for i in self.Delta], self.dir)
         
-
+        self.Nmap.expandcheck()
         for dir in ["FRONT", "LEFT", "RIGHT"]:
             self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
             if self.Echo[dir] < 80: #this is in cm
                 self.Nmap.placeob_rel(dir, math.floor(self.Echo[dir]/5)) #so anything obstacle override blank rather than vice versa
                 print("placed obs", dir, "grids:", math.floor(self.Echo[dir]/5))
         if self.Bump == "BUMP":
+            #if this happens during rotation it's gg
             self.Nmap.placeob_rel("FRONT", 1)
             self.stop()
+            self.rotate = True
 
         
 

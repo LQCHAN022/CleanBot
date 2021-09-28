@@ -166,13 +166,31 @@ while valid:
                 valid = False
     
     elif choice == 6:
+        cleancheck = False
         valid = True
         while valid:
             if(keyboard.is_pressed("w")):
                 print("w")
+                robot.scan()
+                if(robot.Nmap.checksurr().get("FRONT", 10)<5): #use dict
+                    print("Warning")
+                    robot.stop()
+                    continue
+                if(robot.Bump == "BUMP"):
+                    print("BUMP!")
+                    robot.stop()
+                    continue
                 robot.move(0, -1)
                 while(keyboard.is_pressed("w")):
-                    pass
+                    robot.scan()
+                    if(robot.Nmap.checksurr().get("FRONT", 10)<5): #use dict
+                        print("Warning")
+                        robot.stop()
+                        break
+                    if(robot.Bump == "BUMP"):
+                        print("BUMP!")
+                        robot.stop()
+                        break
                 else:
                     print("w released")
                     robot.stop()
@@ -200,6 +218,16 @@ while valid:
                 else:
                     print("d released")
                     robot.stop()
+            elif(keyboard.is_pressed("c")):
+                print("c")
+                if(cleancheck):
+                    robot.cleanoff()
+                    cleancheck = False
+                else:
+                    robot.cleanon()
+                    cleancheck = True
+                while(keyboard.is_pressed("c")):
+                    pass
             elif(keyboard.is_pressed("r")):
                 robot.stop()
                 valid = False

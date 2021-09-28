@@ -305,14 +305,14 @@ class Map:
         
         edge_y = self.rows - self.pos[0] - self.length #distance between robot and South edge
         edge_x = self.cols - self.pos[1] - self.width #distance between robot and East edge
-        if edge_y < 20:
-            self.expand(20, "S")
-        if edge_x < 20:
-            self.expand(20, "E")
-        if self.pos[0] < 20:
-            self.expand(20, "N")
-        if self.pos[1] < 20:
-            self.expand(20, "W")
+        if edge_y < 50:
+            self.expand(50, "S")
+        if edge_x < 50:
+            self.expand(50, "E")
+        if self.pos[0] < 50:
+            self.expand(50, "N")
+        if self.pos[1] < 50:
+            self.expand(50, "W")
 
     def showcurrent(self, t):
         """
