@@ -6,6 +6,8 @@ import serial,time
 from mapping import Map
 from serial.serialutil import SerialException
 from Robot import Robot
+import numpy as np
+import keyboard
 
 """
 This part is to check which arduino is which by checking through all the ports
@@ -43,6 +45,7 @@ while missingArduino:
             if arduino1.isOpen(): #this loop only starts after the we found a port
                 while not checkdone: #keeps checking for input until we have the desired ID phrase
                     while arduino1.in_waiting>0: #while there is stuff wating to be received in this "check"
+                        print("Something to be printed")
                         try: 
                             answer = arduino1.readline().decode()
                             answer = answer[:-1] #remove the newline behind
@@ -63,6 +66,8 @@ while missingArduino:
                                 checkdone = True
                                 arduinoPump = arduino1
                                 print("PUMP found")
+                            else:
+                                print("Found this instead:", answer[0])
                             connected = False
                             time.sleep(0.01)
                         except:
@@ -81,10 +86,15 @@ while missingArduino:
 
 robot = Robot(arduinoSensor, arduinoMove, arduinoPump)
 
-
+np.set_printoptions(threshold=np.inf)
 valid = True
 while valid:
-    choice = int(input("What do test: \n 1. Sensor \n 2. Movement"))
+    choice = int(input("What do test: \n \
+    1. Sensor \n \
+    2. Movement \n \
+    3. Movement and Delta/Step test \n \
+    4. Echo calibration \n\
+    5. Clean testing \n    "))
     if choice == 1:
         """
                 Updates the following attributes:
@@ -96,21 +106,129 @@ while valid:
                 6. self.B2
                 7. self.(Optical stuff, not yet)
                 """
-        robot.read("SENSOR")
+        # robot.read("SENSOR")
+        robot.scan()
+        for row in robot.Nmap.current:
+            print(row[15:-34])
+        print("Size of map now is row/col:", len(robot.Nmap.current), ",", len(robot.Nmap.current[0]))
         print("Echo:", robot.Echo)
         print("Echo Hist:", robot.EchoHist)
         print("Accel:", robot.Accel)
         print("Bump:", robot.Bump)
         print("B1:", robot.B1)
         print("B2:", robot.B2)
+        print("Pos:", robot.Nmap.pos)
+        # print("Nmap:\n", robot.Nmap.current)
+        print("Nmap Echo", robot.Nmap.checksurr())
+        # robot.Nmap.showcurrent(1)
     elif choice == 2:
         cmd = input("Input dir<space>dist").split()
         cmd = [int(i) for i in cmd]
         robot.move(*cmd) #code does not pause here
         for _ in range(30):
+            time.sleep(0.1)
             robot.read("MOVE")
             print("Dir:", robot.dir)
             print("State:", robot.state)
             print("Delta:", robot.Delta, "\n")
             # print("Step Count:", robot.step_count, "\n")
-            time.sleep(0.1)
+            # time.sleep(0.1)
+    elif choice == 3:
+        for _ in range(3):
+            robot.move(0, -1)
+            while(robot.state != "STOP"):
+                robot.scan()
+                if robot.Delta[0] >= 1:
+                    robot.stop()
+            robot.move(180, -1)
+            while(robot.state != "STOP"):
+                robot.scan()
+                if robot.Delta[0] <= -1:
+                    robot.stop()
+    elif choice == 4:
+        loop = int(input("How many times to loop"))
+        for _ in range(loop):
+            robot.scan()
+            print("Echo Hist", robot.EchoHist)
+            # print("Raw echo", robot.Echo)
+            # print("Nmap Echo", robot.Nmap.checksurr())
+            time.sleep(0.2)
+
+    elif choice == 5:
+        valid = True
+        while valid:
+            loop = int(input("1. on, 2. off, 3. exit"))
+            if loop == 1:
+                robot.cleanon()
+            elif loop == 2:
+                robot.cleanoff()
+            else:
+                valid = False
+    
+    elif choice == 6:
+        cleancheck = False
+        valid = True
+        while valid:
+            if(keyboard.is_pressed("w")):
+                print("w")
+                robot.scan()
+                if(robot.Nmap.checksurr().get("FRONT", 10)<5): #use dict
+                    print("Warning")
+                    robot.stop()
+                    continue
+                if(robot.Bump == "BUMP"):
+                    print("BUMP!")
+                    robot.stop()
+                    continue
+                robot.move(0, -1)
+                while(keyboard.is_pressed("w")):
+                    robot.scan()
+                    if(robot.Nmap.checksurr().get("FRONT", 10)<5): #use dict
+                        print("Warning")
+                        robot.stop()
+                        break
+                    if(robot.Bump == "BUMP"):
+                        print("BUMP!")
+                        robot.stop()
+                        break
+                else:
+                    print("w released")
+                    robot.stop()
+            elif(keyboard.is_pressed("a")):
+                print("a")
+                robot.move(270)
+                while(keyboard.is_pressed("a")):
+                    pass
+                else:
+                    print("a released")
+                    robot.stop()
+            elif(keyboard.is_pressed("s")):
+                print("s")
+                robot.move(180, -1)
+                while(keyboard.is_pressed("s")):
+                    pass
+                else:
+                    print("s released")
+                    robot.stop()
+            elif(keyboard.is_pressed("d")):
+                print("d")
+                robot.move(90)
+                while(keyboard.is_pressed("d")):
+                    pass
+                else:
+                    print("d released")
+                    robot.stop()
+            elif(keyboard.is_pressed("c")):
+                print("c")
+                if(cleancheck):
+                    robot.cleanoff()
+                    cleancheck = False
+                else:
+                    robot.cleanon()
+                    cleancheck = True
+                while(keyboard.is_pressed("c")):
+                    pass
+            elif(keyboard.is_pressed("r")):
+                robot.stop()
+                valid = False
+
