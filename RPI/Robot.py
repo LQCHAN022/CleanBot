@@ -52,12 +52,14 @@ class Robot():
     def move(self, dir, dist = 20700):
         """
         This method aims to move the robot
-        Handles negative steps for rotation ie it will turn the other way
+        Handles negative steps for rotation ie it will turn the other way except for -1 which will be continuous
         Note that forward and backwards different than in mapping cause -1 with front will cause infinite running
+        If no dist is specified it will be the steps required for a 90 degree rotation
+
+        REVAMP:
+        Always continuous, but if dist not specified then stop when abs(angleChange) >= 90
+        No more negative angles cause assumed that programmer smart about it......
         """
-        # self.stop() #failsafe
-        # if not self.B2:
-        #     return
         time.sleep(0.1)
         print("Move passed with", dir, dist)
         if dir == 0:
@@ -66,29 +68,44 @@ class Robot():
         elif dir == 180:
             self.AMove.write("BACK {}\n".format(dist).encode())
             self.newstate("BACK")
-        else: #allows to negatve angles so the speak
-            if dist < 0:
-                dir = 90 if dir == 270 else 270
-                dist = -dist
+        
+
+        else: #allows to negatve angles and continuous motion
+            continuous = False
+            if dist == -1:
+                continuous = True
             if dir == 90:
-                cmd = "E " + str(dist) + "\n"
+                cmd = "E " + str(-1) + "\n"
                 self.AMove.write(cmd.encode())
                 self.newstate("ETURN")
                 # self.Accel["PZ"] = self.Accel["Z"]
             elif dir == 270:
-                cmd = "Q " + str(dist) + "\n"
+                cmd = "Q " + str(-1) + "\n"
                 self.AMove.write(cmd.encode())
                 self.newstate("QTURN")
                 # self.Accel["PZ"] = self.Accel["Z"]
+            self.rotate = False
+            time.sleep(0.1)
+            self.AMove.write("R\n".encode())
+        
+        #set things to pause until rotation complete for pure 90/270 but if -1 then just screw it
+            if not continuous: 
+                self.scan() #update current position
+                zAngle = []
+                zAngle.append(self.Accel["Z"])
+                zAngle.append(self.Accel["Z"])
+                while not self.rotate: #most of the error handling will be done here until correct rotation is achieved? 
+                    self.scan()
+                    zAngle[1] = self.Accel["Z"]
+                    print("Current angle: {}, difference with first angle: {}".format(zAngle[-1], abs(zAngle[-1] - zAngle[0])))
+                    if(abs(zAngle[-1] - zAngle[0]) >= 90):
+                        self.stop()
+                        print("There are {} readings required for a full turn".format(len(zAngle)))
+                        self.rotate = True #redundant as stop alr updates it but just in case
+            #if continuous it will run until a stop command issued somewhere down the line
         self.rotate = False
         time.sleep(0.1)
         self.AMove.write("R\n".encode())
-        
-        #set things to pause until rotation complete
-        if dir == 90 or dir == 270:
-            while not self.rotate:
-                self.scan()
-                print(self.Accel) #-87.43, 1.96, 
     
     def stop(self):
         """
@@ -96,6 +113,7 @@ class Robot():
         """
         self.AMove.write("S\n".encode())
         self.newstate("STOP")
+        self.rotate = True
 
     def cleanon(self, pwm = 255, sps = 1000):
         """
@@ -196,9 +214,9 @@ class Robot():
                     And it needs to read move complete too to know that it has been completed
                     We don't really need to monitor this constantly yet so yeah this is lowkey inefficient
                     """
-                    self.Accel["X"] = Sense_vals[1]
-                    self.Accel["Y"] = Sense_vals[2]
-                    self.Accel["Z"] = Sense_vals[3]
+                    self.Accel["X"] = float(Sense_vals[1])
+                    self.Accel["Y"] = float(Sense_vals[2])
+                    self.Accel["Z"] = float(Sense_vals[3])
                 
                 elif Sense_vals[0] == "BUMP" or Sense_vals[0] == "CLEAR":
                     self.Bump = Sense_vals[0]
@@ -343,7 +361,7 @@ class Robot():
             self.Nmap.placeclr_rel(dir, self.Echo[dir]//5) #this must go first
             if self.Echo[dir] < 80: #this is in cm
                 self.Nmap.placeob_rel(dir, math.floor(self.Echo[dir]/5)) #so anything obstacle override blank rather than vice versa
-                print("placed obs", dir, "grids:", math.floor(self.Echo[dir]/5))
+                # print("placed obs", dir, "grids:", math.floor(self.Echo[dir]/5))
         if self.Bump == "BUMP":
             #if this happens during rotation it's gg
             self.Nmap.placeob_rel("FRONT", 1)

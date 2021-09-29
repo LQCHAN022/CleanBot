@@ -170,6 +170,8 @@ while valid:
         cleancheck = False
         valid = True
         while valid:
+
+            ###   FRONT   ###
             if(keyboard.is_pressed("w")):
                 print("w")
                 robot.scan()
@@ -195,14 +197,8 @@ while valid:
                 else:
                     print("w released")
                     robot.stop()
-            elif(keyboard.is_pressed("a")):
-                print("a")
-                robot.move(270)
-                while(keyboard.is_pressed("a")):
-                    pass
-                else:
-                    print("a released")
-                    robot.stop()
+
+            ###   BACK   ###
             elif(keyboard.is_pressed("s")):
                 print("s")
                 robot.move(180, -1)
@@ -211,14 +207,50 @@ while valid:
                 else:
                     print("s released")
                     robot.stop()
+
+            ###   CCW Cont   ###
+            elif(keyboard.is_pressed("a")):
+                print("a")
+                robot.move(270, -1)
+                time.sleep(0.1)
+                while(keyboard.is_pressed("a")):
+                    pass
+                else:
+                    print("a released")
+                    robot.stop()
+
+            
+            ###   CW Cont   ###
             elif(keyboard.is_pressed("d")):
                 print("d")
-                robot.move(90)
+                robot.move(90, -1)
+                time.sleep(0.1)
                 while(keyboard.is_pressed("d")):
                     pass
                 else:
                     print("d released")
                     robot.stop()
+
+            ###   CCW 270   ###
+            elif(keyboard.is_pressed("q")):
+                print("q")
+                robot.move(270)
+                while(keyboard.is_pressed("q")):
+                    pass
+                else:
+                    print("q released")
+                    robot.stop()
+
+            ###   CW 90   ###
+            elif(keyboard.is_pressed("e")):
+                print("e")
+                robot.move(90)
+                while(keyboard.is_pressed("e")):
+                    pass
+                else:
+                    print("e released")
+                    robot.stop()
+
             elif(keyboard.is_pressed("c")):
                 print("c")
                 if(cleancheck):
@@ -229,6 +261,24 @@ while valid:
                     cleancheck = True
                 while(keyboard.is_pressed("c")):
                     pass
+
+            elif(keyboard.is_pressed("i")):
+                print("i")
+                robot.scan()
+                print("Accel: {}".format(robot.Accel))
+                while(keyboard.is_pressed("i")):
+                    pass
+                else:
+                    pass
+                    
+            elif(keyboard.is_pressed("x")):
+                print("x")
+                robot.stop()
+                while(keyboard.is_pressed("x")):
+                    pass
+                else:
+                    pass
+            
             elif(keyboard.is_pressed("r")):
                 robot.stop()
                 valid = False
