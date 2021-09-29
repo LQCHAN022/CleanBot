@@ -93,10 +93,16 @@ while valid:
     1. Sensor \n \
     2. Movement \n \
     3. Movement and Delta/Step test \n \
-    4. Echo calibration \n\
+    4. Echo calibration \n \
     5. Clean testing \n \
-    6. Manual Control"))
-    if choice == 1:
+    6. Manual Control \n \
+    7. Auto demo \n \
+    0. Quit"))
+
+    if choice == 0:
+        valid = False
+    
+    elif choice == 1:
         """
                 Updates the following attributes:
                 1. self.Echo
@@ -156,21 +162,21 @@ while valid:
             time.sleep(0.2)
 
     elif choice == 5:
-        valid = True
-        while valid:
+        validc = True
+        while validc:
             loop = int(input("1. on, 2. off, 3. exit"))
             if loop == 1:
                 robot.cleanon()
             elif loop == 2:
                 robot.cleanoff()
             else:
-                valid = False
+                validc = False
     
     elif choice == 6:
         cleancheck = False
-        valid = True
-        while valid:
-
+        validc = True
+        while validc:
+            robot.scan() #to clear stuff?
             ###   FRONT   ###
             if(keyboard.is_pressed("w")):
                 print("w")
@@ -184,6 +190,7 @@ while valid:
                     robot.stop()
                     continue
                 robot.move(0, -1)
+                time.sleep(0.1)
                 while(keyboard.is_pressed("w")):
                     robot.scan()
                     if(robot.Nmap.checksurr().get("FRONT", 10)<5): #use dict
@@ -202,6 +209,7 @@ while valid:
             elif(keyboard.is_pressed("s")):
                 print("s")
                 robot.move(180, -1)
+                time.sleep(0.1)
                 while(keyboard.is_pressed("s")):
                     pass
                 else:
@@ -281,5 +289,50 @@ while valid:
             
             elif(keyboard.is_pressed("r")):
                 robot.stop()
-                valid = False
+                validc = False
+
+    elif choice == 7:
+        state = "FRONT"
+        robot.scan() #to clear stuff?
+
+        ###   FRONT till stop  ###
+        robot.move(0, -1)
+        time.sleep(0.1)
+        robot.cleanon()
+        robot.scan()
+        while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+            robot.scan()
+            if robot.state == "STOP":
+                break
+        robot.stopall()
+        time.sleep(0.1)
+
+        robot.move(90)
+        robot.stop()
+        time.sleep(0.1)
+
+        robot.move(0, 4000)
+        time.sleep(0.1)
+        robot.cleanon()
+        while(robot.state != "STOP"):
+            robot.scan()
+            pass
+        robot.stopall()
+
+        robot.move(90)
+        robot.stop()
+        time.sleep(0.1)
+        
+        robot.move(0, -1)
+        time.sleep(0.1)
+        robot.cleanon()
+        robot.scan()
+        while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+            robot.scan()
+            if robot.state == "STOP":
+                break
+        robot.stopall()
+        time.sleep(0.1)
+
+        
 

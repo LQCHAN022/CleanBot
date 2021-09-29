@@ -92,13 +92,15 @@ class Robot():
             if not continuous: 
                 self.scan() #update current position
                 zAngle = []
-                zAngle.append(self.Accel["Z"])
-                zAngle.append(self.Accel["Z"])
+                zAngleInt = self.Accel["Z"]
+                zAngle.append(zAngleInt)
                 while not self.rotate: #most of the error handling will be done here until correct rotation is achieved? 
                     self.scan()
-                    zAngle[1] = self.Accel["Z"]
-                    print("Current angle: {}, difference with first angle: {}".format(zAngle[-1], abs(zAngle[-1] - zAngle[0])))
-                    if(abs(zAngle[-1] - zAngle[0]) >= 90):
+                    zAngleInt = self.Accel["Z"]
+                    if(zAngleInt not in zAngle): #compare if this works better than just adding
+                        zAngle.append(zAngleInt)
+                        print("Current angle: {}, difference with first angle: {}".format(zAngle[-1], abs(zAngle[-1] - zAngle[0])))
+                    if(abs(zAngle[-1] - zAngle[0]) >= 88):
                         self.stop()
                         print("There are {} readings required for a full turn".format(len(zAngle)))
                         self.rotate = True #redundant as stop alr updates it but just in case
