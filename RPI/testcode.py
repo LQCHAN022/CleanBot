@@ -94,7 +94,8 @@ while valid:
     2. Movement \n \
     3. Movement and Delta/Step test \n \
     4. Echo calibration \n\
-    5. Clean testing \n    "))
+    5. Clean testing \n \
+    6. Manual Control"))
     if choice == 1:
         """
                 Updates the following attributes:

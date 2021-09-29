@@ -88,7 +88,7 @@ class Robot():
         if dir == 90 or dir == 270:
             while not self.rotate:
                 self.scan()
-                print(self.Accel)
+                print(self.Accel) #-87.43, 1.96, 
     
     def stop(self):
         """
