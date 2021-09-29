@@ -45,7 +45,7 @@ long target = 0;
 int startTime;    //for calc speed
 int spd = 2870; //number of steps per revolution
 char* dir;
-long dist;
+signed long dist;
 long steps; //this is to keep track of the number of steps and update it over to the RPI
 
 void setup() {
@@ -101,6 +101,8 @@ void loop() {
 
     if (strcmp(dir, "FRONT") == 0) {      //front dir
       int distused = (dist==-1)?-1000:dist;
+      Serial.print("Distused: "); Serial.println(distused); 
+      
       stepper1.move(distused);
       stepper2.move(distused);
       stepper3.move(distused);
@@ -147,40 +149,61 @@ void loop() {
 
     
     else if (strcmp(dir, "E") == 0) {      //turn clockwise
-      
-        stepper1.move(dist);
-        stepper2.move(-dist);
-        stepper3.move(dist);
-        stepper4.move(-dist);
+
+        int distused = (dist==-1)?-1000:dist;
+//        Serial.print("Distused: "); Serial.println(distused);
+        
+        stepper1.move(distused);
+        stepper2.move(-distused);
+        stepper3.move(distused);
+        stepper4.move(-distused);
         
         stepper1.setSpeed(spd);
         stepper2.setSpeed(-spd);
         stepper3.setSpeed(spd);
         stepper4.setSpeed(-spd);
       
-      
-        target = stepper2.distanceToGo();
+        if(dist == -1){
+          target = distused;
+          valC = 11; //continuous
+//          Serial.println("valC 11 is used");
+        }
+        else{
+          target = stepper2.distanceToGo();
 //        Serial.println("ROTATE CW config loaded");
-        valC = 1; //all move at spd
+          valC = 1; //all move at spd
+        }
+        
  
     }
 
     else if (strcmp(dir, "Q") == 0) {      //turn dir
+//        Serial.print("Q dist: "); Serial.println(dist);
+
+        int distused = (dist==-1)?-1000:dist;
+//        Serial.print("Distused: "); Serial.println(distused);
      
-     
-        stepper1.move(-dist);
-        stepper2.move(dist);
-        stepper3.move(-dist);
-        stepper4.move(dist);
+        stepper1.move(-distused);
+        stepper2.move(distused);
+        stepper3.move(-distused);
+        stepper4.move(distused);
         
         stepper1.setSpeed(-spd);
         stepper2.setSpeed(spd);
         stepper3.setSpeed(-spd);
         stepper4.setSpeed(spd);
-      
-        target = stepper2.distanceToGo();
+
+        if(dist == -1){
+          target = distused;
+          valC = 11; //continuous
+//          Serial.println("valC 11 is used");
+        }
+        else{
+          target = stepper2.distanceToGo();
 //        Serial.println("ROTATE CCW config loaded");
-        valC = 1; //all move at spd
+          valC = 1; //all move at spd
+        }
+        
  
     }
 
