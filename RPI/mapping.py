@@ -108,7 +108,11 @@ class Map:
         Note that dist 1 will be in front the robot, there is no dist 0
         dir takes FRONT, RIGHT, LEFT, BACK
         Note orientation of robot as well
+        Maximum distance is for expandcheck 50 if 49 then leave it no need obs
         """
+
+        if dist >= 49:
+            return
         w2 = self.width//2
         l2 = self.length//2
 
@@ -175,6 +179,8 @@ class Map:
         Places an clear at a set direction (prefixed length) to a set distance from the robot
         Minimum distance is 1, right in front of the robot
         """
+        if dist >= 49:
+            dist = 49
         w2 = self.width//2
         l2 = self.length//2
 

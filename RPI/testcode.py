@@ -141,17 +141,37 @@ while valid:
             # print("Step Count:", robot.step_count, "\n")
             # time.sleep(0.1)
     elif choice == 3:
+        robot.scan()
+        
+        total = 0
         for _ in range(3):
-            robot.move(0, -1)
+            startpos = robot.Delta_raw
+            robot.move(180, 2870)
             while(robot.state != "STOP"):
                 robot.scan()
-                if robot.Delta[0] >= 1:
-                    robot.stop()
-            robot.move(180, -1)
+                # print(robot.Delta_raw)
+                # if robot.Delta[0] <= -1:
+                #     robot.stop()
+            for _ in range(10):
+                robot.scan()
+                time.sleep(0.1)
+            total += abs(robot.Delta_raw[0] - startpos[0])
+            print(robot.Delta_raw)
+
+            startpos = robot.Delta_raw
+            robot.move(0, 2870)
             while(robot.state != "STOP"):
                 robot.scan()
-                if robot.Delta[0] <= -1:
-                    robot.stop()
+                # print(robot.Delta_raw)
+                # if robot.Delta[0] >= 1:
+                #     robot.stop()
+            for _ in range(10):
+                robot.scan()
+                time.sleep(0.1)
+            total += abs(robot.Delta_raw[0] - startpos[0])
+            print(robot.Delta_raw)
+        print(total/6)
+
     elif choice == 4:
         loop = int(input("How many times to loop"))
         for _ in range(loop):
@@ -190,7 +210,7 @@ while valid:
                     robot.stop()
                     continue
                 robot.move(0, -1)
-                time.sleep(0.1)
+                # time.sleep(0.1)
                 while(keyboard.is_pressed("w")):
                     robot.scan()
                     if(robot.Nmap.checksurr().get("FRONT", 10)<5): #use dict
@@ -209,7 +229,7 @@ while valid:
             elif(keyboard.is_pressed("s")):
                 print("s")
                 robot.move(180, -1)
-                time.sleep(0.1)
+                # time.sleep(0.1)
                 while(keyboard.is_pressed("s")):
                     pass
                 else:
@@ -220,7 +240,7 @@ while valid:
             elif(keyboard.is_pressed("a")):
                 print("a")
                 robot.move(270, -1)
-                time.sleep(0.1)
+                # time.sleep(0.1)
                 while(keyboard.is_pressed("a")):
                     pass
                 else:
@@ -232,7 +252,7 @@ while valid:
             elif(keyboard.is_pressed("d")):
                 print("d")
                 robot.move(90, -1)
-                time.sleep(0.1)
+                # time.sleep(0.1)
                 while(keyboard.is_pressed("d")):
                     pass
                 else:

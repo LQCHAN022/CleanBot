@@ -13,7 +13,8 @@ class Robot():
         self.Delta = [0, 0] #will be in the row and col format, not x and y, this will be the coordinate of the robot in the most accurate sense, since that of Nmap only supports integer values
                             #Delta be true delta instead of compensated delta?(like in mapping since origin for that is fixed and moving)
                             #There has to be attribute in mapping to take care of the deformation called self.deform
-        self.step_count = 0 #this stored that last value of the stepper steps
+        # self.step_count = 0 #VOIDED IN FAVOUR OF OPTICAL READINGS this stored that last value of the stepper steps
+        self.Delta_raw = [0,0]
 
         #These are the different Arduinos
         self.ASense = arduinoSensor
@@ -60,7 +61,7 @@ class Robot():
         Always continuous, but if dist not specified then stop when abs(angleChange) >= 90
         No more negative angles cause assumed that programmer smart about it......
         """
-        time.sleep(0.1)
+        time.sleep(0.2)
         print("Move passed with", dir, dist)
         if dir == 0:
             self.AMove.write("FRONT {}\n".format(dist).encode())
@@ -114,6 +115,9 @@ class Robot():
         This method aims to stop the robot
         """
         self.AMove.write("S\n".encode())
+        while(self.read("MOVE") != 1):
+            time.sleep(0.2)
+            self.AMove.write("S\n".encode())
         self.newstate("STOP")
         self.rotate = True
 
@@ -167,6 +171,8 @@ class Robot():
             5. self.B1
             6. self.B2
             7. self.(Optical stuff, not yet)
+            7.1 It is time to do some optical but anyways optical will take over steps for linear tracking 
+                and (assist gyroscope in rotation...?)
             """
             while self.ASense.in_waiting > 0: #while there's stuff in the buffer to be read
                 Sense_vals = self.ASense.readline().decode() #read the string
@@ -237,20 +243,38 @@ class Robot():
                     self.B2 = True if self.B2 == False else False
 
                 elif Sense_vals[0] == "OPTICAL":
-                    pass
+                    rowDelta = int(Sense_vals[1])
+                    colDelta = int(Sense_vals[2]) #just here for fun
+                    if self.state == "FRONT" or self.pstate == "FRONT" or self.state == "BACK" or self.pstate == "BACK": #if current action update or stopped update
+                        if self.dir == "N":
+                            self.Delta_raw[0] -= rowDelta
+                        elif self.dir == "S":
+                            self.Delta_raw[0] += rowDelta
+                        elif self.dir == "E":
+                            self.Delta_raw[1] += rowDelta
+                        elif self.dir == "W":
+                            self.Delta_raw[1] -= rowDelta
+                    
+                    #refresh Delta (of the map) with the raw delta
+                    self.Delta[0] = self.Delta_raw[0]/440
+                    self.Delta[1] = self.Delta_raw[1]/440
+
+
 
         #MOVE is important cause we want to know when the motors have finished moving
         elif arduino == "MOVE":
             """
             Updates the following attributes:
             1. self.rotate
-            2. self.Delta
+            2. (NOT ANYMORE) self.Delta
             """
             while self.AMove.in_waiting > 0: #while there's stuff in the buffer to be read
                 Move_vals = self.AMove.readline().decode() #read the string
                 Move_vals = Move_vals[:-1] #take away the \n at the back
                 Move_vals = Move_vals.split() #split it into elements in a list, based on space " "
                 # print("Move read:", Move_vals)
+
+
                 if Move_vals[0] == "MOVE_COMPLETE":
                     #this part takes note of the rotation such that it updates the direction when the rotation is finished
                     #doesn't do anything when movement front and reverse stops
@@ -280,7 +304,11 @@ class Robot():
                     if self.pstate == "QTURN" or self.pstate == "ETURN":
                         self.rotate = True #remember to set it at false when executing the initial turn
                 
-                elif Move_vals[0] == "STEPS":
+                elif Move_vals[0] == "STOPPED":
+                    return 1
+                
+                """
+                elif Move_vals[0] == "STEPS": #currently voided as will be replaced with optical sensor
                     #grids is a temporary local variable cause I don't feel like typing the entire thing
                     #one grid is one "pixel" of 5cm on the map
                     # print("Current Steps:", Move_vals[1])
@@ -328,6 +356,9 @@ class Robot():
                             self.Delta[0] += grids
                         elif self.dir == "W":
                             self.Delta[0] -= grids
+                """
+
+                
                     
 
         
