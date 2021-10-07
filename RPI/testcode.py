@@ -142,35 +142,26 @@ while valid:
             # time.sleep(0.1)
     elif choice == 3:
         robot.scan()
-        
-        total = 0
-        for _ in range(3):
-            startpos = robot.Delta_raw
-            robot.move(180, 2870)
+        for _ in range(10):
+            startpos = robot.Delta_raw[0]
+            robot.move(0, -1)
             while(robot.state != "STOP"):
                 robot.scan()
+                print(robot.Delta)
                 # print(robot.Delta_raw)
-                # if robot.Delta[0] <= -1:
-                #     robot.stop()
-            for _ in range(10):
-                robot.scan()
-                time.sleep(0.1)
-            total += abs(robot.Delta_raw[0] - startpos[0])
-            print(robot.Delta_raw)
+                if robot.Delta[0] <= -1:
+                    # print(robot.Delta)
+                    robot.stop()
 
-            startpos = robot.Delta_raw
-            robot.move(0, 2870)
+            startpos = robot.Delta_raw[0]
+            robot.move(180, -1)
             while(robot.state != "STOP"):
                 robot.scan()
+                print(robot.Delta)
                 # print(robot.Delta_raw)
-                # if robot.Delta[0] >= 1:
-                #     robot.stop()
-            for _ in range(10):
-                robot.scan()
-                time.sleep(0.1)
-            total += abs(robot.Delta_raw[0] - startpos[0])
-            print(robot.Delta_raw)
-        print(total/6)
+                if robot.Delta[0] >= 1:
+                    # print(robot.Delta)
+                    robot.stop()
 
     elif choice == 4:
         loop = int(input("How many times to loop"))

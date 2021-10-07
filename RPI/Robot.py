@@ -13,8 +13,9 @@ class Robot():
         self.Delta = [0, 0] #will be in the row and col format, not x and y, this will be the coordinate of the robot in the most accurate sense, since that of Nmap only supports integer values
                             #Delta be true delta instead of compensated delta?(like in mapping since origin for that is fixed and moving)
                             #There has to be attribute in mapping to take care of the deformation called self.deform
-        # self.step_count = 0 #VOIDED IN FAVOUR OF OPTICAL READINGS this stored that last value of the stepper steps
-        self.Delta_raw = [0,0]
+        self.step_count = 0 #RESTORED this stored that last value of the stepper steps
+        self.Delta_raw = [0,0] #raw readings from optical to approximate the x and y coordinates, but not accurate
+        self.Delta_hist = [] #history of Delta_raw for the past 20 readings to detect anomaly
 
         #These are the different Arduinos
         self.ASense = arduinoSensor
@@ -244,20 +245,30 @@ class Robot():
 
                 elif Sense_vals[0] == "OPTICAL":
                     rowDelta = int(Sense_vals[1])
-                    colDelta = int(Sense_vals[2]) #just here for fun
+                    colDelta = int(Sense_vals[2]) 
                     if self.state == "FRONT" or self.pstate == "FRONT" or self.state == "BACK" or self.pstate == "BACK": #if current action update or stopped update
                         if self.dir == "N":
                             self.Delta_raw[0] -= rowDelta
+                            self.Delta_raw[1] += colDelta
                         elif self.dir == "S":
                             self.Delta_raw[0] += rowDelta
+                            self.Delta_raw[1] -= colDelta
                         elif self.dir == "E":
+                            self.Delta_raw[0] += colDelta
                             self.Delta_raw[1] += rowDelta
                         elif self.dir == "W":
+                            self.Delta_raw[0] -= colDelta
                             self.Delta_raw[1] -= rowDelta
                     
+                    if(len(self.Delta_hist)>= 20):
+                        del(self.Delta_hist[0])
+                    self.Delta_hist.append(self.Delta_raw)
+
+                    
                     #refresh Delta (of the map) with the raw delta
-                    self.Delta[0] = self.Delta_raw[0]/440
-                    self.Delta[1] = self.Delta_raw[1]/440
+                    #PHASED OUT cause optical isn't accurate
+                    # self.Delta[0] = self.Delta_raw[0]/440
+                    # self.Delta[1] = self.Delta_raw[1]/440
 
 
 
@@ -307,7 +318,7 @@ class Robot():
                 elif Move_vals[0] == "STOPPED":
                     return 1
                 
-                """
+                
                 elif Move_vals[0] == "STEPS": #currently voided as will be replaced with optical sensor
                     #grids is a temporary local variable cause I don't feel like typing the entire thing
                     #one grid is one "pixel" of 5cm on the map
@@ -318,9 +329,9 @@ class Robot():
                     self.step_count = int(Move_vals[1])
                     if self.state == "FRONT" or self.pstate == "FRONT": #if current action update or stopped update
                         if self.dir == "N":
-                            self.Delta[0] += grids
-                        elif self.dir == "S":
                             self.Delta[0] -= grids
+                        elif self.dir == "S":
+                            self.Delta[0] += grids
                         elif self.dir == "E":
                             self.Delta[1] += grids
                         elif self.dir == "W":
@@ -328,9 +339,9 @@ class Robot():
 
                     elif self.state == "BACK" or self.pstate == "BACK":
                         if self.dir == "N":
-                            self.Delta[0] -= grids
-                        elif self.dir == "S":
                             self.Delta[0] += grids
+                        elif self.dir == "S":
+                            self.Delta[0] -= grids
                         elif self.dir == "E":
                             self.Delta[1] -= grids
                         elif self.dir == "W":
@@ -356,7 +367,7 @@ class Robot():
                             self.Delta[0] += grids
                         elif self.dir == "W":
                             self.Delta[0] -= grids
-                """
+                
 
                 
                     
