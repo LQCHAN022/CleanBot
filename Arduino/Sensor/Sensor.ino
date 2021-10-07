@@ -90,6 +90,7 @@ int lastLimitState2 = 0;
 Bitcraze_PMW3901 flow(22); //defining pin 22 for CS
 
 int16_t deltaX,deltaY; //values for the X and Y deltas
+long coordX, coordY;
 
 //------------------------------------------------------------------//
 
@@ -161,7 +162,7 @@ void loop() {
   limitdetect();
   accelreading();
   buttondetect();
-//  opticalreading();
+  opticalreading();
 
 
 
@@ -331,14 +332,20 @@ void limitdetect(){
 }
 
 void opticalreading(){
-
+  //X and Y axis are pointing towards the right and back originally
   // Get motion count since last call
   flow.readMotionCount(&deltaX, &deltaY);
 
+//  coordX += deltaX;
+//  coordY += deltaY;
+  
+//  Serial.print("OPTICAL "); Serial.print(coordY); Serial.print(" "); Serial.println(coordX);
+//  Serial.print("XCoord: "); Serial.print(coordX); Serial.print(" YCoord: "); Serial.println(coordY);
+  
   Serial.print("OPTICAL ");
-  Serial.print(deltaX);
+  Serial.print(-deltaY);
   Serial.print(" ");
-  Serial.println(deltaY);
+  Serial.println(deltaX);
 
 //  delay(100);
 }
