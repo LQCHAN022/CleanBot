@@ -369,6 +369,7 @@ while valid:
             time.sleep(0.1)
 
             ### Move Set Distance or till stop ###
+            deltaA = robot.Delta[1]
             robot.move(0, 8800)
             time.sleep(0.1)
             robot.cleanon()
@@ -376,9 +377,11 @@ while valid:
                 robot.scan()
                 pass
             robot.stopall()
-            if robot.step_count < 500: #if not enough space to move
-                valid = False
-                break
+            deltaB = robot.Delta[1]
+            # if abs(deltaA - deltaB) < 1: #if not enough space to move
+            #     print(deltaA, deltaB)
+            #     valid = False
+            #     break
 
             ### Turn 90 ###
             robot.move(90)
@@ -403,6 +406,7 @@ while valid:
             time.sleep(0.1)
 
             ### Move Set Distance or till stop ###
+            deltaA = robot.Delta[1]
             robot.move(0, 8800)
             time.sleep(0.1)
             robot.cleanon()
@@ -410,9 +414,10 @@ while valid:
                 robot.scan()
                 pass
             robot.stopall()
-            if robot.step_count < 500: #if not enough space to move
-                valid = False
-                break
+            # deltaB = robot.Delta[1]
+            # if abs(deltaA - deltaB) < 1: #if not enough space to move
+            #     valid = False
+            #     break
 
             ### Turn 90 ###
             robot.move(270)
