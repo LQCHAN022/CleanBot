@@ -62,6 +62,9 @@ class Robot():
         Always continuous, but if dist not specified then stop when abs(angleChange) >= 90
         No more negative angles cause assumed that programmer smart about it......
         """
+        #Safety, if button is toggled then it will not be possible to issue any move commands
+        if self.B1:
+            return
         time.sleep(0.2)
         print("Move passed with", dir, dist)
         if dir == 0:
@@ -411,6 +414,8 @@ class Robot():
             self.Nmap.placeob_rel("FRONT", 1)
             self.stop()
             self.rotate = True
+        if self.B1:
+            self.stopall()
 
         
 

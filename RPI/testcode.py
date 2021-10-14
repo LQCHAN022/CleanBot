@@ -97,6 +97,7 @@ while valid:
     5. Clean testing \n \
     6. Manual Control \n \
     7. Auto demo \n \
+    8. Full Auto Demo \n \
     0. Quit"))
 
     if choice == 0:
@@ -344,6 +345,79 @@ while valid:
                 break
         robot.stopall()
         time.sleep(0.1)
+    
+    elif choice == 8:
+        state = "FRONT"
+        robot.scan() #to clear stuff?
+        running = True
+        while running:
+            ###   FRONT till stop  ###
+            robot.move(0, -1)
+            time.sleep(0.1)
+            robot.cleanon()
+            robot.scan()
+            while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+                robot.scan()
+                if robot.state == "STOP":
+                    break
+            robot.stopall()
+            time.sleep(0.1)
+            
+            ### Turn 90 ###
+            robot.move(90)
+            robot.stop()
+            time.sleep(0.1)
+
+            ### Move Set Distance or till stop ###
+            robot.move(0, 8800)
+            time.sleep(0.1)
+            robot.cleanon()
+            while(robot.state != "STOP"):
+                robot.scan()
+                pass
+            robot.stopall()
+            if robot.step_count < 500: #if not enough space to move
+                valid = False
+                break
+
+            ### Turn 90 ###
+            robot.move(90)
+            robot.stop()
+            time.sleep(0.1)
+            
+            ### Move Front till stop
+            robot.move(0, -1)
+            time.sleep(0.1)
+            robot.cleanon()
+            robot.scan()
+            while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+                robot.scan()
+                if robot.state == "STOP":
+                    break
+            robot.stopall()
+            time.sleep(0.1)
+
+            ### Turn 270 ###
+            robot.move(270)
+            robot.stop()
+            time.sleep(0.1)
+
+            ### Move Set Distance or till stop ###
+            robot.move(0, 8800)
+            time.sleep(0.1)
+            robot.cleanon()
+            while(robot.state != "STOP"):
+                robot.scan()
+                pass
+            robot.stopall()
+            if robot.step_count < 500: #if not enough space to move
+                valid = False
+                break
+
+            ### Turn 90 ###
+            robot.move(270)
+            robot.stop()
+            time.sleep(0.1)
 
         
 
