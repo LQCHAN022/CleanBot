@@ -35,8 +35,8 @@ class Robot():
         self.Accel = {} 
         self.Bump = "CLEAR"
         
-        self.B1 = False
-        self.B2 = False
+        self.B1 = False #for pausing
+        self.B2 = False #for stopping
 
     def printattr(self):
         print("State:", self.state)
@@ -63,7 +63,9 @@ class Robot():
         No more negative angles cause assumed that programmer smart about it......
         """
         #Safety, if button is toggled then it will not be possible to issue any move commands
-        if self.B1:
+        while self.B1:
+            self.scan()
+        if self.B2:
             return
         time.sleep(0.2)
         print("Move passed with", dir, dist)
@@ -125,13 +127,17 @@ class Robot():
         self.newstate("STOP")
         self.rotate = True
 
-    def cleanon(self, pwm = 80, sps = 122):
+    def cleanon(self, pwm = 70, sps = 1220):
         """
         This method aims to start the cleaning process
         Activates roller and pump
         pwm: duty cycle of pump
         sps: steps per second of roller motor
         """
+        while self.B1:
+            self.scan()
+        if self.B2:
+            return
         self.APump.write("ON {}\n".format(pwm).encode())
         self.AMove.write("CLEAN {}\n".format(sps).encode())
     
@@ -414,7 +420,7 @@ class Robot():
             self.Nmap.placeob_rel("FRONT", 1)
             self.stopall()
             self.rotate = True
-        if self.B1:
+        if self.B1 or self.B2:
             self.stopall()
 
         

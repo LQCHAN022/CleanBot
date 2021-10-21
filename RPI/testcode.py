@@ -538,6 +538,8 @@ while valid:
             robot.move(270)
             robot.stop()
             time.sleep(0.1)
+            if robot.B2:
+                running = False
         print("End of Cleaning")
         
 
