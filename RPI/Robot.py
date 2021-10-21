@@ -125,7 +125,7 @@ class Robot():
         self.newstate("STOP")
         self.rotate = True
 
-    def cleanon(self, pwm = 255, sps = 1000):
+    def cleanon(self, pwm = 80, sps = 122):
         """
         This method aims to start the cleaning process
         Activates roller and pump
@@ -412,7 +412,7 @@ class Robot():
         if self.Bump == "BUMP":
             #if this happens during rotation it's gg
             self.Nmap.placeob_rel("FRONT", 1)
-            self.stop()
+            self.stopall()
             self.rotate = True
         if self.B1:
             self.stopall()

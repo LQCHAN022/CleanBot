@@ -208,13 +208,18 @@ while valid:
                     if(robot.Nmap.checksurr().get("FRONT", 10)<5): #use dict
                         print("Warning")
                         robot.stop()
+                        print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
                         break
                     if(robot.Bump == "BUMP"):
                         print("BUMP!")
+                        robot.scan()
+                        print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
                         robot.stop()
                         break
                 else:
                     print("w released")
+                    robot.scan()
+                    print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
                     robot.stop()
 
             ###   BACK   ###
@@ -226,15 +231,36 @@ while valid:
                     pass
                 else:
                     print("s released")
+                    robot.scan()
+                    print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
                     robot.stop()
 
             ###   CCW Cont   ###
             elif(keyboard.is_pressed("a")):
                 print("a")
+                robot.scan()
+                if(robot.Nmap.checksurr().get("RIGHT", 10)<4 or robot.Nmap.checksurr().get("LEFT", 10)<4): #use dict
+                    print("Warning")
+                    robot.stop()
+                    continue
+                if(robot.Bump == "BUMP"):
+                    print("BUMP!")
+                    robot.stop()
+                    continue
                 robot.move(270, -1)
                 # time.sleep(0.1)
                 while(keyboard.is_pressed("a")):
-                    pass
+                    robot.scan()
+                    if(robot.Nmap.checksurr().get("RIGHT", 10)<4 or robot.Nmap.checksurr().get("LEFT", 10)<4): #use dict
+                        print("Warning")
+                        robot.stop()
+                        print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
+                        break
+                    if(robot.Bump == "BUMP"):
+                        print("BUMP!")
+                        print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
+                        robot.stop()
+                        break
                 else:
                     print("a released")
                     robot.stop()
@@ -243,10 +269,30 @@ while valid:
             ###   CW Cont   ###
             elif(keyboard.is_pressed("d")):
                 print("d")
+                robot.scan()
+                if(robot.Nmap.checksurr().get("RIGHT", 10)<4 or robot.Nmap.checksurr().get("LEFT", 10)<4): #use dict
+                    print("Warning")
+                    robot.stop()
+                    continue
+                if(robot.Bump == "BUMP"):
+                    print("BUMP!")
+                    robot.stop()
+                    continue
                 robot.move(90, -1)
                 # time.sleep(0.1)
                 while(keyboard.is_pressed("d")):
-                    pass
+                    robot.scan()
+                    if(robot.Nmap.checksurr().get("RIGHT", 10)<4 or robot.Nmap.checksurr().get("LEFT", 10)<4): #use dict
+                        print("Warning")
+                        robot.stop()
+                        print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
+                        break
+                    if(robot.Bump == "BUMP"):
+                        print("BUMP!")
+                        robot.scan()
+                        print("Delta is {}, {}".format(robot.Delta[0], robot.Delta[1]))
+                        robot.stop()
+                        break
                 else:
                     print("d released")
                     robot.stop()
@@ -285,7 +331,10 @@ while valid:
             elif(keyboard.is_pressed("i")):
                 print("i")
                 robot.scan()
-                print("Accel: {}".format(robot.Accel))
+                print("Gyro: {}".format(robot.Accel))
+                print("Surrounding check:", robot.Nmap.checksurr())
+                print("Optical Coordinates:", robot.Delta_raw[0], robot.Delta_raw[1])
+                print("Coordinates:", robot.Delta[0], robot.Delta[1])
                 while(keyboard.is_pressed("i")):
                     pass
                 else:
@@ -312,25 +361,40 @@ while valid:
         time.sleep(0.1)
         robot.cleanon()
         robot.scan()
-        while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+        while(robot.Nmap.checksurr().get("FRONT", 10)>1): #use dict
             robot.scan()
             if robot.state == "STOP":
                 break
         robot.stopall()
         time.sleep(0.1)
 
-        robot.move(90)
-        robot.stop()
-        time.sleep(0.1)
-
-        robot.move(0, 4000)
-        time.sleep(0.1)
-        robot.cleanon()
+        ### BACK a bit  ###     
+        robot.move(180, 5740) #move back 20cm
         while(robot.state != "STOP"):
             robot.scan()
             pass
         robot.stopall()
 
+        ### CW 90 ###
+        robot.move(90)
+        robot.stop()
+        time.sleep(0.1)
+
+        ### FRONT a bit ###
+        robot.move(0, 5740)
+        time.sleep(0.1)
+        robot.cleanon()
+        while(robot.state != "STOP"):
+            robot.scan()
+            if(robot.Nmap.checksurr().get("FRONT", 10)<4): #use dict
+                robot.stopall()
+            if robot.state == "STOP":
+                break
+            pass
+        robot.stopall()
+        time.sleep(0.1)
+
+        robot.scan()
         robot.move(90)
         robot.stop()
         time.sleep(0.1)
@@ -339,7 +403,7 @@ while valid:
         time.sleep(0.1)
         robot.cleanon()
         robot.scan()
-        while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+        while(robot.Nmap.checksurr().get("FRONT", 10)>1): #use dict
             robot.scan()
             if robot.state == "STOP":
                 break
@@ -350,79 +414,130 @@ while valid:
         state = "FRONT"
         robot.scan() #to clear stuff?
         running = True
+        lastShort = 0
         while running:
+        
+            robot.scan() #to clear stuff?
+
             ###   FRONT till stop  ###
             robot.move(0, -1)
             time.sleep(0.1)
             robot.cleanon()
             robot.scan()
-            while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+            while(robot.Nmap.checksurr().get("FRONT", 10)>1): #use dict
                 robot.scan()
                 if robot.state == "STOP":
                     break
             robot.stopall()
             time.sleep(0.1)
-            
-            ### Turn 90 ###
-            robot.move(90)
-            robot.stop()
-            time.sleep(0.1)
 
-            ### Move Set Distance or till stop ###
-            deltaA = robot.Delta[1]
-            robot.move(0, 8800)
-            time.sleep(0.1)
-            robot.cleanon()
+            ### BACK a bit  ###     
+            robot.move(180, 5740) #move back 20cm
             while(robot.state != "STOP"):
                 robot.scan()
                 pass
             robot.stopall()
-            deltaB = robot.Delta[1]
-            # if abs(deltaA - deltaB) < 1: #if not enough space to move
-            #     print(deltaA, deltaB)
-            #     valid = False
-            #     break
 
-            ### Turn 90 ###
+            ### CW 90 ###
+            robot.move(90)
+            robot.stop()
+            time.sleep(0.1)
+
+            ### FRONT a bit ###
+            robot.move(0, 5740)
+            time.sleep(0.1)
+            robot.cleanon()
+            while(robot.state != "STOP"):
+                robot.scan()
+                if(robot.Nmap.checksurr().get("FRONT", 10)<4): #stop with turning room
+                    robot.stopall()
+                    if lastShort == 1:
+                        robot.stopall()
+                        running = False
+                    lastShort = 1
+                    break
+                elif robot.state == "STOP": #stop by collision
+                    robot.move(180, 5740) #move back 20cm to give turning space
+                    while(robot.state != "STOP"):
+                        robot.scan()
+                    robot.stopall()
+                    if lastShort == 1:
+                        robot.stopall()
+                        running = False
+                    lastShort = 1
+                    break
+                else:
+                    lastShort = 0
+            robot.stopall()
+            time.sleep(0.1)
+
+            if running == False:
+                break
+            ### CW 90 ###
+            robot.scan()
             robot.move(90)
             robot.stop()
             time.sleep(0.1)
             
-            ### Move Front till stop
+            ###   FRONT till stop  ###
             robot.move(0, -1)
             time.sleep(0.1)
             robot.cleanon()
             robot.scan()
-            while(robot.Nmap.checksurr().get("FRONT", 10)>5): #use dict
+            while(robot.Nmap.checksurr().get("FRONT", 10)>1): #use dict
                 robot.scan()
                 if robot.state == "STOP":
                     break
             robot.stopall()
             time.sleep(0.1)
 
-            ### Turn 270 ###
-            robot.move(270)
-            robot.stop()
-            time.sleep(0.1)
-
-            ### Move Set Distance or till stop ###
-            deltaA = robot.Delta[1]
-            robot.move(0, 8800)
-            time.sleep(0.1)
-            robot.cleanon()
+            ### BACK a bit  ###     
+            robot.move(180, 5740) #move back 20cm
             while(robot.state != "STOP"):
                 robot.scan()
                 pass
             robot.stopall()
-            # deltaB = robot.Delta[1]
-            # if abs(deltaA - deltaB) < 1: #if not enough space to move
-            #     valid = False
-            #     break
 
-            ### Turn 90 ###
+            ### CCW 270 ###
             robot.move(270)
             robot.stop()
             time.sleep(0.1)
 
+            ### FRONT a bit ###
+            robot.move(0, 5740)
+            time.sleep(0.1)
+            robot.cleanon()
+            while(robot.state != "STOP"):
+                robot.scan()
+                if(robot.Nmap.checksurr().get("FRONT", 10)<4): #stop with turning room
+                    robot.stopall()
+                    if lastShort == 1:
+                        robot.stopall()
+                        running = False
+                    lastShort = 1
+                    break
+                elif robot.state == "STOP": #stop by collision
+                    robot.move(180, 5740) #move back 20cm to give turning space
+                    while(robot.state != "STOP"):
+                        robot.scan()
+                    robot.stopall()
+                    if lastShort == 1:
+                        robot.stopall()
+                        running = False
+                    lastShort = 1
+                    break
+                else:
+                    lastShort = 0
+            robot.stopall()
+            time.sleep(0.1)
+
+            if running == False:
+                break
+            ### CW 90 ###
+            robot.scan()
+            robot.move(270)
+            robot.stop()
+            time.sleep(0.1)
+        print("End of Cleaning")
         
 
