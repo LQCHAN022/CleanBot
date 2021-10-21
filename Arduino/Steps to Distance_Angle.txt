@@ -4,3 +4,16 @@
 41400 steps = 180 degrees
 230 steps/degrees
 20700 steps = 90 degrees
+
+Optical Reading
+q: 1323, 37
+Error back to origin: 10, 12
+q: 1326, 46 
+Origin: 4, 27, error: 6, 15
+
+Linear
+10cm: 444, 447, 451
+Origin: 5, 7, 14, 
+
+Est: 440 units/cm
+

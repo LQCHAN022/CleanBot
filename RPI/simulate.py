@@ -7,7 +7,7 @@ Reimplementation of this file with S motion, taking into account that notion of 
 Rough plan:
 North/South, gradually moving east sweep
 
-Psudo code:
+Pseudo code:
 """
 
 from mapping import Map
