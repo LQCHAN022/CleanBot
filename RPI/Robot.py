@@ -127,7 +127,7 @@ class Robot():
         self.newstate("STOP")
         self.rotate = True
 
-    def cleanon(self, pwm = 70, sps = 1220):
+    def cleanon(self, pwm = 70, sps = 1000):
         """
         This method aims to start the cleaning process
         Activates roller and pump
@@ -422,6 +422,7 @@ class Robot():
             self.rotate = True
         if self.B1 or self.B2:
             self.stopall()
+        # print("Optical Reading:", self.Delta_raw)
 
         
 

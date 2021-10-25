@@ -427,6 +427,7 @@ while valid:
             while(robot.Nmap.checksurr().get("FRONT", 10)>1): #use dict
                 robot.scan()
                 if robot.state == "STOP":
+                    print("Obstacle detected")
                     break
             robot.stopall()
             time.sleep(0.1)
@@ -444,22 +445,24 @@ while valid:
             time.sleep(0.1)
 
             ### FRONT a bit ###
-            robot.move(0, 5740)
+            robot.move(0, 8610)
             time.sleep(0.1)
             robot.cleanon()
             while(robot.state != "STOP"):
                 robot.scan()
                 if(robot.Nmap.checksurr().get("FRONT", 10)<4): #stop with turning room
                     robot.stopall()
+                    print("Obstacle detected")
                     if lastShort == 1:
                         robot.stopall()
                         running = False
                     lastShort = 1
                     break
-                elif robot.state == "STOP": #stop by collision
+                elif robot.Bump == "BUMP": #stop by collision
+                    print("Obstacle detected")
                     robot.move(180, 5740) #move back 20cm to give turning space
-                    while(robot.state != "STOP"):
-                        robot.scan()
+                    # while(robot.state == "STOP"):
+                    #     robot.scan()
                     robot.stopall()
                     if lastShort == 1:
                         robot.stopall()
@@ -479,7 +482,7 @@ while valid:
             robot.stop()
             time.sleep(0.1)
             
-            ###   FRONT till stop  ###
+           ###   FRONT till stop  ###
             robot.move(0, -1)
             time.sleep(0.1)
             robot.cleanon()
@@ -487,6 +490,7 @@ while valid:
             while(robot.Nmap.checksurr().get("FRONT", 10)>1): #use dict
                 robot.scan()
                 if robot.state == "STOP":
+                    print("Obstacle detected")
                     break
             robot.stopall()
             time.sleep(0.1)
@@ -504,22 +508,24 @@ while valid:
             time.sleep(0.1)
 
             ### FRONT a bit ###
-            robot.move(0, 5740)
+            robot.move(0, 8610)
             time.sleep(0.1)
             robot.cleanon()
             while(robot.state != "STOP"):
                 robot.scan()
                 if(robot.Nmap.checksurr().get("FRONT", 10)<4): #stop with turning room
                     robot.stopall()
+                    print("Obstacle detected")
                     if lastShort == 1:
                         robot.stopall()
                         running = False
                     lastShort = 1
                     break
-                elif robot.state == "STOP": #stop by collision
+                elif robot.Bump == "BUMP": #stop by collision
+                    print("Obstacle detected")
                     robot.move(180, 5740) #move back 20cm to give turning space
-                    while(robot.state != "STOP"):
-                        robot.scan()
+                    # while(robot.state != "STOP"):
+                    #     robot.scan()
                     robot.stopall()
                     if lastShort == 1:
                         robot.stopall()
