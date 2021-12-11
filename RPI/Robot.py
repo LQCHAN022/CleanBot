@@ -423,6 +423,13 @@ class Robot():
         if self.B1 or self.B2:
             self.stopall()
         # print("Optical Reading:", self.Delta_raw)
+    
+    def on(self):
+        self.AMove.write("ON\n".encode())
+        return
+    
+    def off(self):
+        self.AMove.write("OFF\n".encode())
 
         
 

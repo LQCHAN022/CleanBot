@@ -19,6 +19,7 @@ prevUSBport = 0
 nports = 3 #number of ports/connections
 missingArduino = True
 connected = False
+on = True
 
 while missingArduino: 
     for port in range(nports):
@@ -98,6 +99,7 @@ while valid:
     6. Manual Control \n \
     7. Auto demo \n \
     8. Full Auto Demo \n \
+    9. On/Off \n \
     0. Quit"))
 
     if choice == 0:
@@ -548,4 +550,12 @@ while valid:
                 running = False
         print("End of Cleaning")
         
-
+    elif choice == 9:
+        if(on):
+            robot.off()
+            print("Robot now off")
+            on = False
+        else:
+            robot.on()
+            print("Robot now on")
+            on = True
