@@ -127,7 +127,7 @@ class Robot():
         self.newstate("STOP")
         self.rotate = True
 
-    def cleanon(self, pwm = 70, sps = 1000):
+    def cleanon(self, pwm = 100, sps = 1000):
         """
         This method aims to start the cleaning process
         Activates roller and pump
